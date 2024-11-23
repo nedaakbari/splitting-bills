@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,8 +19,7 @@ public class Bill {
     private double totalCost;
     @ManyToOne
     private User payer;
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate;
-    private Date modyfyingDate;
+    @OneToMany
+    private List<PairItem> items;//todo pairClass?
 
 }

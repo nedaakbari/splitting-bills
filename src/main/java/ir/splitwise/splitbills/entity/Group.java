@@ -1,24 +1,20 @@
 package ir.splitwise.splitbills.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
-public class Group {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Group extends BaseEntity {
     private String title;
     @ManyToMany
     private List<User> members;
-    private Date creationDate;
-    private Date modyfyingDate;
     private double totalCost;
     private String description;
 
@@ -26,5 +22,4 @@ public class Group {
     private List<Bill> billList;
 
     //todo share picture of the group
-
 }
