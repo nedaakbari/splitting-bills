@@ -10,10 +10,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Bill {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Bill extends BaseEntity {
+
     private String title;
     private String description;
     private double totalCost;

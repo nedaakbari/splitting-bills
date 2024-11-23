@@ -15,11 +15,13 @@ public class Group extends BaseEntity {
     private String title;
     @ManyToMany
     private List<User> members;
+    @OneToMany
+    private List<Bill> billList;
     private double totalCost;
     private String description;
 
-    @OneToMany
-    private List<Bill> billList;
 
     //todo share picture of the group
+    //todo List<Byte> pictures;
+    private State state;
 }
