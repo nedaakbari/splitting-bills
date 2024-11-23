@@ -21,4 +21,9 @@ public class AuthController {
     public void login(){
         //todo
     }
+
+    @PostMapping("/logout")
+    public void logout(){
+        //todo
+    }
 }
