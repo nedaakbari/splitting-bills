@@ -20,7 +20,7 @@ public class ShareGroupService {
     private final ShareGroupRepository shareGroupRepository;
     private final UserService userService;
 
-    public long addShareGroup(ShareGroupRequest shareGroupRequest) throws UserNotFoundException {
+    public BaseRequest addShareGroup(ShareGroupRequest shareGroupRequest) throws UserNotFoundException {
         AppUser owner = userService.findUserById(1);//todo user owner
 
         List<Long> userIds = shareGroupRequest.userIds();
@@ -30,7 +30,7 @@ public class ShareGroupService {
         ShareGroup shareGroup = buildGroup(shareGroupRequest, groupMembers, owner);
         ShareGroup savedGroupInDb = shareGroupRepository.save(shareGroup);
         //todo notify to all members
-        return savedGroupInDb.getId();
+        return new BaseRequest(savedGroupInDb.getId());
     }
 
     private static ShareGroup buildGroup(ShareGroupRequest shareGroupRequest,
@@ -47,7 +47,7 @@ public class ShareGroupService {
 
     public void modifyShareGroup(ModifySharedGroupRequest request) throws Exception {
         AppUser requester = userService.findUserById(1);//todo user owner
-        var foundGroup = findGroupById(request);
+        var foundGroup = findGroupById(request.groupId());
         GroupMode groupMode = foundGroup.getGroupMode();
         if (GroupMode.OWNER_ONLY.equals(groupMode) && !Objects.equals(requester.getId(), foundGroup.getOwner().getId())) {
             throw new Exception("access deny");//todo better exception
@@ -60,10 +60,18 @@ public class ShareGroupService {
         List<AppUser> members = userService.findAllUserById(userIds);
         members.add(requester);
         foundGroup.setMembers(members);
+
+        shareGroupRepository.save(foundGroup);
     }
 
-    private ShareGroup findGroupById(ModifySharedGroupRequest request) throws ContentNotFoundException {
-        return shareGroupRepository.findById(request.groupId())
-                .orElseThrow(() -> new ContentNotFoundException("group " + request.groupId() + "not found"));
+    private ShareGroup findGroupById(long id) throws ContentNotFoundException {
+        return shareGroupRepository.findById(id)
+                .orElseThrow(() -> new ContentNotFoundException("group " + id + "not found"));
+    }
+
+    public void deleteAGroup(long id) throws ContentNotFoundException {
+        ShareGroup foundGroup = findGroupById(id);
+        foundGroup.setState(State.DELETE);
+        shareGroupRepository.save(foundGroup);
     }
 }

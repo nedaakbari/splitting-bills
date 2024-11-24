@@ -2,6 +2,7 @@ package ir.splitwise.splitbills.controller;
 
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.ShareGroupRequest;
+import ir.splitwise.splitbills.service.BaseRequest;
 import ir.splitwise.splitbills.service.ModifySharedGroupRequest;
 import ir.splitwise.splitbills.service.ShareGroupService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class GroupController {
     private final ShareGroupService shareGroupService;
 
     @PostMapping("/add")
-    public long addGroup(@RequestBody ShareGroupRequest request)
+    public BaseRequest addGroup(@RequestBody ShareGroupRequest request)
             throws UserNotFoundException {
 
         return shareGroupService.addShareGroup(request);
@@ -30,8 +31,14 @@ public class GroupController {
         shareGroupService.modifyShareGroup(request);
     }
 
+    @PostMapping("/delete")
+    public void deleteGroup(@RequestBody BaseRequest request) {
 
-    @PostMapping("/ge")
+        shareGroupService.deleteAGroup(request.id());
+    }
+
+
+    @PostMapping("/get-all")
     public void getAllGroupOfUser() {
 
     }
