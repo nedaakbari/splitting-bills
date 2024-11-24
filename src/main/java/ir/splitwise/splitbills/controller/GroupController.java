@@ -1,8 +1,9 @@
 package ir.splitwise.splitbills.controller;
 
+import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.ShareGroupRequest;
-import ir.splitwise.splitbills.service.BaseRequest;
+import ir.splitwise.splitbills.models.BaseRequest;
 import ir.splitwise.splitbills.service.ModifySharedGroupRequest;
 import ir.splitwise.splitbills.service.ShareGroupService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,8 @@ public class GroupController {
     }
 
     @PostMapping("/delete")
-    public void deleteGroup(@RequestBody BaseRequest request) {
+    public void deleteGroup(@RequestBody BaseRequest request)
+            throws ContentNotFoundException {
 
         shareGroupService.deleteAGroup(request.id());
     }

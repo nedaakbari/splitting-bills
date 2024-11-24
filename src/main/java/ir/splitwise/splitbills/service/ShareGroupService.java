@@ -5,6 +5,7 @@ import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.entity.State;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
+import ir.splitwise.splitbills.models.BaseRequest;
 import ir.splitwise.splitbills.models.GroupMode;
 import ir.splitwise.splitbills.models.ShareGroupRequest;
 import ir.splitwise.splitbills.repository.ShareGroupRepository;

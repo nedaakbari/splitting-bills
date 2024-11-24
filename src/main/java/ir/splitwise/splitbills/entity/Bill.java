@@ -1,6 +1,9 @@
 package ir.splitwise.splitbills.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +19,11 @@ public class Bill extends BaseEntity {
     private double totalCost;
     @ManyToOne
     private AppUser payer;
-    @OneToMany
-    private List<PairItem> items;//todo pairClass?
+    @Lob//todo how many character?
+    private String items;//todo pairClass?
 
+    @ManyToOne
+    private AppUser creator;
+    @ManyToOne
+    private AppUser modifier;
 }

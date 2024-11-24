@@ -23,5 +23,4 @@ public class BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     private Date modyfyingDate;
-
 }
