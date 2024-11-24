@@ -1,11 +1,13 @@
 package ir.splitwise.splitbills.models;
 
+import com.google.gson.JsonElement;
+
 public record AddBillRequest(long groupId,
                              String title,
                              String description,
                              double totalCost,
                              long payer,
-                             String items) {//todo what can i do for this
+                             JsonElement items) {//todo what can i do for this
     //{
     // name:"pofak",
     //coount:3,

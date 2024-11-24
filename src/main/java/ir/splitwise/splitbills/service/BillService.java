@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.service;
 
+import com.google.gson.JsonElement;
 import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.entity.Bill;
 import ir.splitwise.splitbills.entity.ShareGroup;
@@ -65,12 +66,13 @@ public class BillService {
         bill.setDescription(addBillRequest.description());
         bill.setTitle(addBillRequest.title());
         bill.setPayer(payer);
-        bill.setItems(addBillRequest.items());
+        JsonElement items = addBillRequest.items();
+
+        bill.setItems(items.toString());
 //        bill.setTotalCost(addBillRequest.totalCost());//todo should be validate users or sum the costs??
         bill.setCreator(creator);
         return bill;
     }
-
 
     public void deleteBill(long id) throws ContentNotFoundException {
         Bill founfBill = findBillFromDb(id);
