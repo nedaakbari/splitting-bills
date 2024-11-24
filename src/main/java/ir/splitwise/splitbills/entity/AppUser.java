@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -11,6 +13,8 @@ public class AppUser extends BaseEntity {//todo what happen if i want to add som
     private String username;
     private String password;
     private String email;
+
+    private List<Long> groupIds;
     //todo List<String> roles
     //todo profile picture
 }

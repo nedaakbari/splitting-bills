@@ -40,5 +40,9 @@ public class UserService {
         return foundUsers;
     }
 
+    public void saveUsers(List<AppUser> appUserList) {
+        userRepository.saveAll(appUserList);//todo batch?
+    }
+
 
 }

@@ -4,8 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum State {
-    NEW,
-    DELETE,
-    IN_PROGRESS,
+    ACTIVE,
     FINISH//when all member payed
 }
