@@ -6,6 +6,7 @@ import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.AddBillRequest;
+import ir.splitwise.splitbills.models.BaseRequest;
 import ir.splitwise.splitbills.models.ModifyBillRequest;
 import ir.splitwise.splitbills.repository.BillRepository;
 import jakarta.transaction.Transactional;
@@ -22,7 +23,7 @@ public class BillService {
     private final ShareGroupService shareGroupService;
 
     @Transactional(rollbackOn = Throwable.class)
-    public void addBill(AddBillRequest request) throws UserNotFoundException, ContentNotFoundException {
+    public BaseRequest addBill(AddBillRequest request) throws UserNotFoundException, ContentNotFoundException {
         var creator = userService.findUserById(request.payer());
         var payer = userService.findUserById(request.payer());
         var bill = buildBill(request, payer, creator);
@@ -34,10 +35,12 @@ public class BillService {
         billList.add(savedBill);
         foundGroup.setBillList(billList);
         shareGroupService.saveGroupInDb(foundGroup);
+
+        return new BaseRequest(savedBill.getId());//todo it is necessary?
     }
 
     public void modifyBill(ModifyBillRequest request) throws UserNotFoundException, ContentNotFoundException {
-        var foundBill = getBillFromDb(request.id());
+        var foundBill = findBillFromDb(request.id());
 
         var modifyer = userService.findUserById(1);//todo get from spring
         var payer = userService.findUserById(request.payer());
@@ -53,8 +56,8 @@ public class BillService {
         foundBill.setItems(request.items());//todo
     }
 
-    private Bill getBillFromDb(long id) throws ContentNotFoundException {
-        return billRepository.findById(id).orElseThrow(() -> new ContentNotFoundException(""));
+    private Bill findBillFromDb(long id) throws ContentNotFoundException {
+        return billRepository.findById(id).orElseThrow(() -> new ContentNotFoundException("bill " + id + "not found"));
     }
 
     private static Bill buildBill(AddBillRequest addBillRequest, AppUser payer, AppUser creator) {
@@ -69,4 +72,8 @@ public class BillService {
     }
 
 
+    public void deleteBill(long id) throws ContentNotFoundException {
+        Bill founfBill = findBillFromDb(id);
+        billRepository.delete(founfBill);//todo it is required to keep it for history? i dont think so
+    }
 }
