@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.entity;
 
+import ir.splitwise.splitbills.models.GroupMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
@@ -19,7 +20,7 @@ public class ShareGroup extends BaseEntity {
     private List<Bill> billList;
     private double totalCost;
     private String description;
-
+    private GroupMode groupMode;
 
     //todo share picture of the group
     //todo List<Byte> pictures;

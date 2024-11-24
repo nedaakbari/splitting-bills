@@ -16,7 +16,7 @@ public class GroupController {
 
     @PostMapping("/add")
     public void addGroup(@RequestBody ShareGroupRequest shareGroupRequest) {
-        shareGroupService.addShareGroup(ShareGroupRequest);
+        shareGroupService.addShareGroup(shareGroupRequest);
     }
 
     @PostMapping("/modify")
