@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.controller;
 
+import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.AddBillRequest;
 import ir.splitwise.splitbills.service.BillService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,9 @@ public class BillController {
     private final BillService billService;
 
     @PostMapping("/add")
-    public void addBillToAGroup(@RequestBody AddBillRequest addBillRequest) {
+    public void addBillToAGroup(@RequestBody AddBillRequest addBillRequest)
+            throws UserNotFoundException {
+
         billService.addBill(addBillRequest);
     }
 

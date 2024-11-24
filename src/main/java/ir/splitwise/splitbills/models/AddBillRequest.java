@@ -1,6 +1,7 @@
 package ir.splitwise.splitbills.models;
 
-public record AddBillRequest(String title,
+public record AddBillRequest(long groupId,
+                             String title,
                              String description,
                              double totalCost,
                              long payer,

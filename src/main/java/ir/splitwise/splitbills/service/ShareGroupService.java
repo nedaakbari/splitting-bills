@@ -65,7 +65,7 @@ public class ShareGroupService {
         shareGroupRepository.save(foundGroup);
     }
 
-    private ShareGroup findGroupById(long id) throws ContentNotFoundException {
+    public ShareGroup findGroupById(long id) throws ContentNotFoundException {
         return shareGroupRepository.findById(id)
                 .orElseThrow(() -> new ContentNotFoundException("group " + id + "not found"));
     }
@@ -74,5 +74,9 @@ public class ShareGroupService {
         ShareGroup foundGroup = findGroupById(id);
         foundGroup.setState(State.DELETE);
         shareGroupRepository.save(foundGroup);
+    }
+
+    public ShareGroup saveGroupInDb(ShareGroup group) {
+        return shareGroupRepository.save(group);
     }
 }
