@@ -1,6 +1,8 @@
 package ir.splitwise.splitbills.controller;
 
+import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.ShareGroupRequest;
+import ir.splitwise.splitbills.service.ModifySharedGroupRequest;
 import ir.splitwise.splitbills.service.ShareGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,13 +17,17 @@ public class GroupController {
     private final ShareGroupService shareGroupService;
 
     @PostMapping("/add")
-    public void addGroup(@RequestBody ShareGroupRequest shareGroupRequest) {
-        shareGroupService.addShareGroup(shareGroupRequest);
+    public long addGroup(@RequestBody ShareGroupRequest request)
+            throws UserNotFoundException {
+
+        return shareGroupService.addShareGroup(request);
     }
 
     @PostMapping("/modify")
-    public void modifyGroup() {//delete and modify possible fields
-        //todo
+    public void modifyGroup(@RequestBody ModifySharedGroupRequest request)
+            throws Exception {//delete and modify possible fields
+
+        shareGroupService.modifyShareGroup(request);
     }
 
 

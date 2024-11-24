@@ -1,11 +1,10 @@
 package ir.splitwise.splitbills.entity;
 
 import ir.splitwise.splitbills.models.GroupMode;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
 
 import java.util.List;
 
@@ -14,12 +13,15 @@ import java.util.List;
 @Setter
 public class ShareGroup extends BaseEntity {
     private String title;
-    @ManyToMany
+    @ManyToOne
+    private AppUser owner;
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<AppUser> members;
     @OneToMany
     private List<Bill> billList;
     private double totalCost;
     private String description;
+    @Column(nullable = false)
     private GroupMode groupMode;
 
     //todo share picture of the group
