@@ -52,6 +52,14 @@ public class ShareGroupService {
         if (GroupMode.OWNER_ONLY.equals(groupMode) && !Objects.equals(requester.getId(), foundGroup.getOwner().getId())) {
             throw new Exception("access deny");//todo better exception
         }
+
+        foundGroup.setTitle(request.title());
+        foundGroup.setDescription(request.description());
+        List<Long> userIds = request.userIds();
+
+        List<AppUser> members = userService.findAllUserById(userIds);
+        members.add(requester);
+        foundGroup.setMembers(members);
     }
 
     private ShareGroup findGroupById(ModifySharedGroupRequest request) throws ContentNotFoundException {

@@ -19,7 +19,7 @@ public class ShareGroup extends BaseEntity {
     private List<AppUser> members;
     @OneToMany
     private List<Bill> billList;
-    private double totalCost;
+    private double totalCost;//todo it must be autho calculate
     private String description;
     @Column(nullable = false)
     private GroupMode groupMode;
