@@ -22,7 +22,7 @@ public class Bill extends BaseEntity {
     @Lob//todo how many character?
     private String items;//todo pairClass?
 
-    @ManyToOne
+    @ManyToOne//todo can not modify
     private AppUser creator;
     @ManyToOne
     private AppUser modifier;

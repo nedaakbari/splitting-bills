@@ -36,6 +36,23 @@ public class BillService {
         shareGroupService.saveGroupInDb(foundGroup);
     }
 
+    public void modifyBill(ModifyBillRequest request) throws UserNotFoundException, ContentNotFoundException {
+        var foundBill = getBillFromDb(request.id());
+
+        var modifyer = userService.findUserById(1);//todo get from spring
+        var payer = userService.findUserById(request.payer());
+
+        foundBill.setModifier(modifyer);
+        foundBill.setPayer(payer);
+        foundBill.setTitle(request.title());
+        foundBill.setDescription(request.description());
+        billRepository.save(foundBill);
+    }
+
+    private Bill getBillFromDb(long id) throws ContentNotFoundException {
+        return billRepository.findById(id).orElseThrow(() -> new ContentNotFoundException(""));
+    }
+
     private static Bill buildBill(AddBillRequest addBillRequest, AppUser payer, AppUser creator) {
         Bill bill = new Bill();
         bill.setDescription(addBillRequest.description());
