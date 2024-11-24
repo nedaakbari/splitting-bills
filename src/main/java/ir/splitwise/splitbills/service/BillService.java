@@ -42,11 +42,15 @@ public class BillService {
         var modifyer = userService.findUserById(1);//todo get from spring
         var payer = userService.findUserById(request.payer());
 
+        updateBillParams(request, foundBill, modifyer, payer);
+        billRepository.save(foundBill);
+    }
+
+    private static void updateBillParams(ModifyBillRequest request, Bill foundBill, AppUser modifyer, AppUser payer) {
         foundBill.setModifier(modifyer);
         foundBill.setPayer(payer);
         foundBill.setTitle(request.title());
-        foundBill.setDescription(request.description());
-        billRepository.save(foundBill);
+        foundBill.setItems(request.items());//todo
     }
 
     private Bill getBillFromDb(long id) throws ContentNotFoundException {
