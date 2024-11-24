@@ -7,7 +7,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class User extends BaseEntity {//todo what happen if i want to add someOne is not in app
+public class AppUser extends BaseEntity {//todo what happen if i want to add someOne is not in app
     private String username;
     private String password;
     private String email;

@@ -16,9 +16,9 @@ public class PaymentInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    private User payer;
+    private AppUser payer;
     @ManyToOne
-    private User receiver;
+    private AppUser receiver;
     private PayWay payWay;
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate

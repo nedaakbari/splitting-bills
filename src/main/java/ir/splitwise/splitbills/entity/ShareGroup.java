@@ -11,10 +11,10 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-public class Group extends BaseEntity {
+public class ShareGroup extends BaseEntity {
     private String title;
     @ManyToMany
-    private List<User> members;
+    private List<AppUser> members;
     @OneToMany
     private List<Bill> billList;
     private double totalCost;

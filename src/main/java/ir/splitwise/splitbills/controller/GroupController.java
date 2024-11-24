@@ -1,7 +1,10 @@
 package ir.splitwise.splitbills.controller;
 
+import ir.splitwise.splitbills.models.ShareGroupRequest;
+import ir.splitwise.splitbills.service.ShareGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,27 +12,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/group")
 public class GroupController {
+    private final ShareGroupService shareGroupService;
+
     @PostMapping("/add")
-    public void addGroup(){
-        //todo
+    public void addGroup(@RequestBody ShareGroupRequest shareGroupRequest) {
+        shareGroupService.addShareGroup(ShareGroupRequest);
     }
 
     @PostMapping("/modify")
-    public void modifyGroup(){//delete and modify possible fields
+    public void modifyGroup() {//delete and modify possible fields
         //todo
     }
 
 
-
-
     @PostMapping("/ge")
-    public void getAllGroupOfUser(){
+    public void getAllGroupOfUser() {
 
     }
 
 
     @PostMapping("/")
-    public void getAllActiveGroupOfUser(){
+    public void getAllActiveGroupOfUser() {
 
     }
 }

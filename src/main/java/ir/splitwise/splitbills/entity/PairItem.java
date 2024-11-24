@@ -10,6 +10,6 @@ import lombok.Setter;
 @Setter
 public class PairItem extends BaseEntity {
     @ManyToOne
-    private User user;
+    private AppUser appUser;
     private int count;
 }

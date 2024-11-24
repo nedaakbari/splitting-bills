@@ -13,7 +13,7 @@ public class StatePayment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)//todo AUTO=sequence is better or identity
     private Long id;
     @ManyToOne
-    private User user;
+    private AppUser appUser;
     private PayWay payWay;
     private Date payDate;
     private boolean isPaid;

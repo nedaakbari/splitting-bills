@@ -4,6 +4,6 @@ import jakarta.persistence.ManyToOne;
 
 public class Expense extends BaseEntity {
     @ManyToOne
-    private Group group;
+    private SahreGroup sahreGroup;
     //todo
 }
