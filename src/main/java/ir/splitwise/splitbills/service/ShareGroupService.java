@@ -32,12 +32,12 @@ public class ShareGroupService {
         ShareGroup savedGroupInDb = shareGroupRepository.save(shareGroup);
         //todo notify to all members
 
-        for (AppUser groupMember : groupMembers) {
-            List<Long> groupIds = groupMember.getGroupIds();
-            groupIds.add(savedGroupInDb.getId());
+/*        for (AppUser groupMember : groupMembers) {
+            List<ShareGroup> shareGroupList = groupMember.getGroupIds();
+            shareGroupList.add(savedGroupInDb);
         }
 
-        userService.saveUsers(groupMembers);
+        userService.saveUsers(groupMembers);*/
 
         return new BaseRequest(savedGroupInDb.getId());
     }
@@ -90,8 +90,7 @@ public class ShareGroupService {
 
     public List<ActiveShareGroupResponse> getAllActiveGroupOfAUser() throws UserNotFoundException {
         AppUser requester = userService.findUserById(1);//todo user owner
-        List<Long> groupIds = requester.getGroupIds();
-        List<ShareGroup> allGroupAfActiveUser = findAllGroupAfActiveUser(groupIds);
+        List<ShareGroup> allGroupAfActiveUser = findAllGroupAfActiveUser(requester.getId());
 
         return allGroupAfActiveUser.stream()
                 .map(g -> new ActiveShareGroupResponse(g.getTitle(), g.getTotalCost(), g.getDescription())).toList();
@@ -100,17 +99,17 @@ public class ShareGroupService {
 
     public List<ShareGroupResponse> getAllGroupOfAUser() throws UserNotFoundException {
         AppUser requester = userService.findUserById(1);//todo user owner
-        List<Long> groupIds = requester.getGroupIds();
-        List<ShareGroup> allGroupAfUser = findAllGroupAfUser(groupIds);
+
+        List<ShareGroup> allGroupAfUser = findAllGroupAfUser(requester.getId());
         return allGroupAfUser.stream()
                 .map(g -> new ShareGroupResponse(g.getTitle(), g.getTotalCost(), g.getDescription(), g.getState())).toList();
     }
 
-    public List<ShareGroup> findAllGroupAfUser(List<Long> groupIds) {
-        return shareGroupRepository.findAllById(groupIds);
+    public List<ShareGroup> findAllGroupAfUser(long userId) {
+        return shareGroupRepository.findAllGroupUser(userId);
     }
 
-    private List<ShareGroup> findAllGroupAfActiveUser(List<Long> groupIds) {
-        return shareGroupRepository.findAllByIdAndState(groupIds, State.ACTIVE);
+    private List<ShareGroup> findAllGroupAfActiveUser(long userId) {
+        return shareGroupRepository.findAllActiveGroupUser(userId, State.ACTIVE);
     }
 }

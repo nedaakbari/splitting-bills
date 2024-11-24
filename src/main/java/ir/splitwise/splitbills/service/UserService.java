@@ -34,10 +34,10 @@ public class UserService {
     public List<AppUser> findAllUserById(List<Long> ids) throws UserNotFoundException {
         List<AppUser> foundUsers = userRepository.findAllById(ids);//todo what if one not match
         if (!foundUsers.isEmpty() && foundUsers.size() == ids.size()) {
-            log.info("not match");//todo
-            throw new UserNotFoundException();
+            return foundUsers;
         }
-        return foundUsers;
+        log.info("not match");//todo
+        throw new UserNotFoundException();
     }
 
     public void saveUsers(List<AppUser> appUserList) {
