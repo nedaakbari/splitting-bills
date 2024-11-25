@@ -13,17 +13,17 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public void register(){
+    public void register() {
         //todo
     }
 
     @PostMapping("/login")
-    public void login(){
+    public void login() {
         //todo
     }
 
     @PostMapping("/logout")
-    public void logout(){
+    public void logout() {
         //todo
     }
 }

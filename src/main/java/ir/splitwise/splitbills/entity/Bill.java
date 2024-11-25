@@ -1,14 +1,10 @@
 package ir.splitwise.splitbills.entity;
 
-import com.google.gson.JsonElement;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Entity
 @Getter

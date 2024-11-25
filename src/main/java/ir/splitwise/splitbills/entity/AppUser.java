@@ -14,7 +14,6 @@ import java.util.List;
 @Setter
 public class AppUser extends BaseEntity {//todo what happen if i want to add someOne is not in app
     private String username;
-    private String password;
     private String email;
     @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
     @ToString.Exclude
