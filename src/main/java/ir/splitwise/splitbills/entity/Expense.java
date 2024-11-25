@@ -6,12 +6,11 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Expense extends BaseEntity{
+public class Expense extends BaseEntity {
     @ManyToOne
     private AppUser appUser;
     @ManyToOne
-    private ShareGroup shareGroup;
+    private Bill bill;
 
     private double shareAmount;
-
 }

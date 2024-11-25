@@ -7,10 +7,7 @@ import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
-import ir.splitwise.splitbills.models.AddBillRequest;
-import ir.splitwise.splitbills.models.BaseRequest;
-import ir.splitwise.splitbills.models.ItemRequest;
-import ir.splitwise.splitbills.models.ModifyBillRequest;
+import ir.splitwise.splitbills.models.*;
 import ir.splitwise.splitbills.repository.BillRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,18 +21,22 @@ public class BillService {
     private final UserService userService;
     private final BillRepository billRepository;
     private final ShareGroupService shareGroupService;
+    private final ExpenseService expenseService;
 
-
+    @Transactional(rollbackOn = Throwable.class)
     public BaseRequest addBill(AddBillRequest request)
             throws UserNotFoundException, ContentNotFoundException, InvalidException {
         long groupId = request.groupId();
         var foundGroup = shareGroupService.findGroupById(groupId);
-
         var creator = userService.findUserById(request.payerId());
         var payer = userService.findUserById(request.payerId());
         var bill = buildBill(request, foundGroup, payer, creator);
         var savedBill = billRepository.save(bill);
-
+        expenseService.addExpense(bill, request.items());
+        List<ItemRequest> items = request.items();
+        double totalCost = getTotalCost(items);
+        foundGroup.setTotalCost(totalCost);
+        shareGroupService.saveGroupInDb(foundGroup);
         return new BaseRequest(savedBill.getId());//todo it is necessary?
     }
 
@@ -50,13 +51,24 @@ public class BillService {
         billRepository.save(foundBill);
 
         List<ItemRequest> items = request.items();
-        double totalCost = 0;
-        for (ItemRequest item : items) {
-            totalCost += item.getCost();
-        }
+        double totalCost = getTotalCost(items);
         ShareGroup shareGroup = foundBill.getShareGroup();
         shareGroup.setTotalCost(totalCost);
         shareGroupService.saveGroupInDb(shareGroup);
+    }
+
+    private static double getTotalCost(List<ItemRequest> items) {
+        for (ItemRequest item : items) {
+            List<UserItem> userItems = item.getUserItems();
+            List<Long> list = userItems.stream().map(UserItem::getUserId).toList();
+        }
+        double totalCost = 0;
+        for (ItemRequest item : items) {
+            totalCost += item.getTotalCost();
+
+
+        }
+        return totalCost;
     }
 
     private static void updateBillParams(ModifyBillRequest request, Bill foundBill, AppUser modifyer, AppUser payer) {

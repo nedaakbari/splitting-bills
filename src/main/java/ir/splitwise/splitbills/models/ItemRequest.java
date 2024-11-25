@@ -9,7 +9,8 @@ import java.util.List;
 @Setter
 public class ItemRequest {
     private String name;
-    private double cost;
+    private double totalCost;
+    private int count;
     private List<UserItem> userItems;
 }
 

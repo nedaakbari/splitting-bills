@@ -3,6 +3,7 @@ package ir.splitwise.splitbills.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,8 +17,13 @@ public class AppUser extends BaseEntity {//todo what happen if i want to add som
     private String username;
     private String email;
     @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
-    @ToString.Exclude
+//    @ToString.Exclude
     private List<ShareGroup> groupIds;
+    @OneToMany(mappedBy = "appUser")
+//    @ToString.Exclude
+    private List<Expense> expenses;
+
+
     //todo List<String> roles
     //todo profile picture
 }
