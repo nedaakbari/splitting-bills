@@ -35,7 +35,8 @@ public class BillService {
         expenseService.addExpense(bill, request.items());
         List<ItemRequest> items = request.items();
         double totalCost = getTotalCost(items);
-        foundGroup.setTotalCost(totalCost);
+        double groupCost = foundGroup.getTotalCost();
+        foundGroup.setTotalCost(totalCost + groupCost);
         shareGroupService.saveGroupInDb(foundGroup);
         return new BaseRequest(savedBill.getId());//todo it is necessary?
     }

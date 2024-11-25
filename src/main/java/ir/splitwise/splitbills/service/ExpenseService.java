@@ -23,11 +23,11 @@ public class ExpenseService {
     private final ShareGroupService shareGroupService;
 
     public void addExpense(Bill bill, List<ItemRequest> itemRequestList) throws UserNotFoundException {
+        List<Expense> expenseList = new ArrayList<>();
         for (ItemRequest itemRequest : itemRequestList) {
             double totalCost = itemRequest.getTotalCost();
             int itemTotalCount = itemRequest.getCount();
             List<UserItem> userItems = itemRequest.getUserItems();
-            List<Expense> expenseList = new ArrayList<>();
             boolean equalShare = itemRequest.isEqualShare();
             if (equalShare) {
                 expenseList.addAll(getEqualExpense(bill, totalCost, userItems));
@@ -36,8 +36,8 @@ public class ExpenseService {
                     expenseList.add(getPairExpense(bill, userItem, totalCost, itemTotalCount));
                 }
             }
-            expenseRepository.saveAll(expenseList);
         }
+        expenseRepository.saveAll(expenseList);
     }
 
     private Expense getPairExpense(Bill bill, UserItem userItem, double totalCost, int itemTotalCount) throws UserNotFoundException {
