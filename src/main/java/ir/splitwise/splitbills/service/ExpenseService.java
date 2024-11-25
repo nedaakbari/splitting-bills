@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -39,13 +40,22 @@ public class ExpenseService {
         }
     }
 
-    public void getAllExpenseOfUser(long groupId) throws UserNotFoundException, ContentNotFoundException {
+    public double getAllExpenseOfUser(long groupId) throws UserNotFoundException, ContentNotFoundException {
         var userRequester = userService.findUserById(1);//todo get from spring
         ShareGroup userGroup = shareGroupService.findGroupById(groupId);
-
-        List<Bill> billList = userGroup.getBillList();//todo lazy
+        double totalDept = 0;
+        List<Bill> billList = userGroup.getBillList();//todo lazy for  items
         for (Bill bill : billList) {
             List<Expense> expenses = expenseRepository.finaAllByBillIdAndUserId(bill.getId(), userRequester.getId());
+            AppUser payer = bill.getPayer();
+            if (Objects.equals(payer.getId(), userRequester.getId())) {
+                totalDept -= bill.getTotalCost();
+            }
+            if (!expenses.isEmpty()) {
+                totalDept += expenses.stream().map(Expense::getShareAmount).count();
+            }
+
+            return totalDept;
 
         }
 
