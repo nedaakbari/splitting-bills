@@ -54,11 +54,7 @@ public class ExpenseService {
             if (!expenses.isEmpty()) {
                 totalDept += expenses.stream().map(Expense::getShareAmount).count();
             }
-
-            return totalDept;
-
         }
-
-
+        return totalDept;
     }
 }
