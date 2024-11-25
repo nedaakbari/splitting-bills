@@ -12,6 +12,7 @@ public class ItemRequest {
     private double totalCost;
     private int count;
     private List<UserItem> userItems;
+    private boolean isEqualShare;
 }
 
 

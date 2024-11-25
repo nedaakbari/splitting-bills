@@ -19,6 +19,7 @@ public class UserProfileController {
 
     @PostMapping("/expense")
     public DeptResponse getAllDeptOfUser(@RequestBody BaseRequest request) throws UserNotFoundException, ContentNotFoundException {
+        expenseService.getALlDeptOfGroup(request.id());
         return expenseService.getAllExpenseOfUser(request.id());
     }
 }

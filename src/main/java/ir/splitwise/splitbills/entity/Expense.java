@@ -3,9 +3,14 @@ package ir.splitwise.splitbills.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class Expense extends BaseEntity {
     @ManyToOne
     private AppUser appUser;
@@ -13,4 +18,10 @@ public class Expense extends BaseEntity {
     private Bill bill;
 
     private double shareAmount;
+
+    public Expense(AppUser appUser, Bill bill, double shareAmount) {
+        this.appUser = appUser;
+        this.bill = bill;
+        this.shareAmount = shareAmount;
+    }
 }

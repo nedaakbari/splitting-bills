@@ -13,8 +13,7 @@ import ir.splitwise.splitbills.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,17 +27,37 @@ public class ExpenseService {
             double totalCost = itemRequest.getTotalCost();
             int itemTotalCount = itemRequest.getCount();
             List<UserItem> userItems = itemRequest.getUserItems();
-            for (UserItem userItem : userItems) {
-                int count = userItem.getCount();
-                long userId = userItem.getUserId();
-                AppUser userById = userService.findUserById(userId);
-                Expense expense = new Expense();
-                expense.setAppUser(userById);
-                expense.setShareAmount((totalCost / itemTotalCount) * count);
-                expense.setBill(bill);
-                expenseRepository.save(expense);
+            List<Expense> expenseList = new ArrayList<>();
+            boolean equalShare = itemRequest.isEqualShare();
+            if (equalShare) {
+                expenseList.addAll(getEqualExpense(bill, totalCost, userItems));
+            } else {
+                for (UserItem userItem : userItems) {
+                    expenseList.add(getPairExpense(bill, userItem, totalCost, itemTotalCount));
+                }
             }
+            expenseRepository.saveAll(expenseList);
         }
+    }
+
+    private Expense getPairExpense(Bill bill, UserItem userItem, double totalCost, int itemTotalCount) throws UserNotFoundException {
+        int count = userItem.getCount();
+        long userId = userItem.getUserId();
+        AppUser userById = userService.findUserById(userId);
+        Expense expense = new Expense();
+        expense.setAppUser(userById);
+        expense.setShareAmount((totalCost / itemTotalCount) * count);
+        expense.setBill(bill);
+        return expense;
+    }
+
+    private List<Expense> getEqualExpense(Bill bill, double totalCost, List<UserItem> userItems)
+            throws UserNotFoundException {
+
+        double sharedCount = totalCost / userItems.size();
+        List<Long> list = userItems.stream().map(UserItem::getUserId).toList();
+        List<AppUser> allUserById = userService.findAllUserById(list);
+        return allUserById.stream().map(user -> new Expense(user, bill, sharedCount)).toList();
     }
 
     public DeptResponse getAllExpenseOfUser(long groupId) throws UserNotFoundException, ContentNotFoundException {
@@ -57,5 +76,31 @@ public class ExpenseService {
             }
         }
         return new DeptResponse(totalDept);
+    }
+
+    public List<?> getALlDeptOfGroup(long groupId) throws UserNotFoundException, ContentNotFoundException {
+        var userRequester = userService.findUserById(1);//todo get from spring
+        ShareGroup group = shareGroupService.findGroupById(groupId);
+        double totalCost = group.getTotalCost();//todo validate
+
+        Map<AppUser, Double> deptOfGroup = new HashMap<>();
+        List<Bill> billList = group.getBillList();
+        for (Bill bill : billList) {
+            List<Expense> expenses = expenseRepository.finaAllByBillId(bill.getId());
+            AppUser payer = bill.getPayer();
+            Double payerCost = deptOfGroup.get(payer);
+            double payerDept = payerCost == null ? 0 : payerCost;
+            payerDept -= bill.getTotalCost();
+            deptOfGroup.put(payer, payerDept);
+
+            for (Expense expens : expenses) {
+                AppUser appUser = expens.getAppUser();
+                Double cost = deptOfGroup.get(appUser);
+                double userDept = cost == null ? 0 : cost;
+                userDept += expens.getShareAmount();
+                deptOfGroup.put(appUser, userDept);
+            }
+        }
+        return null;
     }
 }
