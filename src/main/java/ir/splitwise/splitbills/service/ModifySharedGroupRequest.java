@@ -1,9 +1,10 @@
 package ir.splitwise.splitbills.service;
 
 import java.util.List;
+import java.util.Set;
 
 public record ModifySharedGroupRequest(long groupId,
                                        String title,
-                                       List<Long> userIds,
+                                       Set<Long> userIds,
                                        String description) {
 }

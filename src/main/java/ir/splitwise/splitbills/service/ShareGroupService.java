@@ -11,8 +11,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +29,7 @@ public class ShareGroupService {
         List<Long> userIds = shareGroupRequest.userIds();
         List<AppUser> groupMembers = userService.findAllUserById(userIds);
         groupMembers.add(owner);
-
+//todo what can i do that he can not add himself to member
         ShareGroup shareGroup = buildGroup(shareGroupRequest, groupMembers, owner);
         ShareGroup savedGroupInDb = shareGroupRepository.save(shareGroup);
         //todo notify to all members
@@ -64,12 +66,9 @@ public class ShareGroupService {
 
         foundGroup.setTitle(request.title());
         foundGroup.setDescription(request.description());
-        List<Long> userIds = request.userIds();
-
-        List<AppUser> members = userService.findAllUserById(userIds);
-        members.add(requester);
+        Set<Long> userIds = request.userIds();
+        List<AppUser> members = userService.findAllUserById(new ArrayList<>(userIds));
         foundGroup.setMembers(members);
-
         shareGroupRepository.save(foundGroup);
     }
 

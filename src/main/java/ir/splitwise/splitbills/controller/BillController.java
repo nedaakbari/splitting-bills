@@ -1,6 +1,7 @@
 package ir.splitwise.splitbills.controller;
 
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
+import ir.splitwise.splitbills.exceptions.InvalidException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.AddBillRequest;
 import ir.splitwise.splitbills.models.BaseRequest;
@@ -20,7 +21,7 @@ public class BillController {
 
     @PostMapping("/add")
     public BaseRequest addBillToAGroup(@RequestBody AddBillRequest addBillRequest)
-            throws UserNotFoundException, ContentNotFoundException {
+            throws UserNotFoundException, ContentNotFoundException, InvalidException {
 
         return billService.addBill(addBillRequest);
     }

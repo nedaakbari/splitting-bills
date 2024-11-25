@@ -8,11 +8,9 @@ import ir.splitwise.splitbills.models.ShareGroupRequest;
 import ir.splitwise.splitbills.models.ShareGroupResponse;
 import ir.splitwise.splitbills.service.ModifySharedGroupRequest;
 import ir.splitwise.splitbills.service.ShareGroupService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -43,13 +41,18 @@ public class GroupController {
         shareGroupService.deleteAGroup(request.id());
     }
 
-    @PostMapping("/get-all")
+    @GetMapping("/get-all")
     public List<ShareGroupResponse> getAllGroupOfUser() throws UserNotFoundException {
         return shareGroupService.getAllGroupOfAUser();
     }
 
-    @PostMapping("/get-all-active")
+    @GetMapping("/get-all-active")
     public List<ActiveShareGroupResponse> getAllActiveGroupOfUser() throws UserNotFoundException {
+        return shareGroupService.getAllActiveGroupOfAUser();
+    }
+
+    @GetMapping("/get-all-in-progress")
+    public List<ActiveShareGroupResponse> getAllInProgressGroupOfUser() throws UserNotFoundException {
         return shareGroupService.getAllActiveGroupOfAUser();
     }
 }

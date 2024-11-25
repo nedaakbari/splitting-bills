@@ -1,5 +1,16 @@
 package ir.splitwise.splitbills.models;
 
-public record ItemRequest(String name,
-                          int count) {
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+
+@Getter
+@Setter
+public class ItemRequest {
+    private String name;
+    private double cost;
+    private List<UserItem> userItems;
 }
+
+
