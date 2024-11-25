@@ -3,6 +3,7 @@ package ir.splitwise.splitbills.controller;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.BaseRequest;
+import ir.splitwise.splitbills.models.DeptResponse;
 import ir.splitwise.splitbills.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +18,7 @@ public class UserProfileController {
     private final ExpenseService expenseService;
 
     @PostMapping("/expense")
-    public void getAllDeptOfUser(@RequestBody BaseRequest request) throws UserNotFoundException, ContentNotFoundException {
-        expenseService.getAllExpenseOfUser(request.id());
+    public DeptResponse getAllDeptOfUser(@RequestBody BaseRequest request) throws UserNotFoundException, ContentNotFoundException {
+        return expenseService.getAllExpenseOfUser(request.id());
     }
-
 }

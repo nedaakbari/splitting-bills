@@ -6,6 +6,7 @@ import ir.splitwise.splitbills.entity.Expense;
 import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
+import ir.splitwise.splitbills.models.DeptResponse;
 import ir.splitwise.splitbills.models.ItemRequest;
 import ir.splitwise.splitbills.models.UserItem;
 import ir.splitwise.splitbills.repository.ExpenseRepository;
@@ -40,7 +41,7 @@ public class ExpenseService {
         }
     }
 
-    public double getAllExpenseOfUser(long groupId) throws UserNotFoundException, ContentNotFoundException {
+    public DeptResponse getAllExpenseOfUser(long groupId) throws UserNotFoundException, ContentNotFoundException {
         var userRequester = userService.findUserById(1);//todo get from spring
         ShareGroup userGroup = shareGroupService.findGroupById(groupId);
         double totalDept = 0;
@@ -52,9 +53,9 @@ public class ExpenseService {
                 totalDept -= bill.getTotalCost();
             }
             if (!expenses.isEmpty()) {
-                totalDept += expenses.stream().map(Expense::getShareAmount).count();
+                totalDept += expenses.stream().mapToDouble(Expense::getShareAmount).sum();
             }
         }
-        return totalDept;
+        return new DeptResponse(totalDept);
     }
 }
