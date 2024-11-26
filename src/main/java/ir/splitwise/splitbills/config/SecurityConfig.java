@@ -23,7 +23,7 @@ public class SecurityConfig {
         return httpSecurity
                 .csrf().disable()
                 .authorizeHttpRequests(
-                        authRequest -> authRequest.requestMatchers("/auth/register").permitAll()
+                        authRequest -> authRequest.requestMatchers("/auth/register","/test-cookie").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)

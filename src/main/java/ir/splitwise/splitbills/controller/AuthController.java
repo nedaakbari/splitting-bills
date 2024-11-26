@@ -2,7 +2,6 @@ package ir.splitwise.splitbills.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.splitwise.splitbills.exceptions.DuplicateDataException;
-import ir.splitwise.splitbills.models.AuthResponse;
 import ir.splitwise.splitbills.models.LoginRequest;
 import ir.splitwise.splitbills.models.RegisterUserRequest;
 import ir.splitwise.splitbills.service.AuthenticationService;
@@ -25,8 +24,10 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public AuthResponse register(@Validated @RequestBody RegisterUserRequest request) throws DuplicateDataException {
-        return authenticationService.register(request);
+    public void register(@Validated @RequestBody RegisterUserRequest request ,HttpServletResponse response)//HttpServletResponse response
+            throws DuplicateDataException {
+
+        authenticationService.register(request,response);
     }
 
     @PostMapping("/login")

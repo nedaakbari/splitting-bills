@@ -30,11 +30,8 @@ public class GroupController {
     public BaseRequest addGroup(@RequestBody ShareGroupRequest request, Authentication authentication)
             throws UserNotFoundException {
 
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof AppUser appUser) {
-            return shareGroupService.addShareGroup(request, appUser);
-        }
-        throw new UserNotFoundException("");//todo
+        AppUser appUser = CheckAppUser.checkUserInstance(authentication);
+        return shareGroupService.addShareGroup(request, appUser);
     }
 
     @PostMapping("/modify")

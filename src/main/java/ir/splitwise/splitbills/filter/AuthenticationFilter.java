@@ -3,8 +3,10 @@ package ir.splitwise.splitbills.filter;
 import ir.splitwise.splitbills.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,31 +28,36 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-
-        String authorization = request.getHeader("Authorization");//todo must be from cookie
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        var authorizationToken = getTokenFromCookie(request);
+        if (authorizationToken == null) {
             filterChain.doFilter(request, response);//todo
             return;
         }
-        String token = authorization.substring(7);
-        String subject =  jwtService.extractUsername(token);
+        var subject = jwtService.extractUsername(authorizationToken);
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
         if (subject != null && authentication == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
-            if (jwtService.isTokenValid(token, userDetails.getUsername())) {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                );
+            if (jwtService.isTokenValid(authorizationToken, userDetails.getUsername())) {
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 securityContext.setAuthentication(authenticationToken);
             }
         }
         filterChain.doFilter(request, response);
+    }
 
+    private static String getTokenFromCookie(HttpServletRequest request) {
+        for (Cookie cookie : request.getCookies()) {
+            if ("X-Auth-Token".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

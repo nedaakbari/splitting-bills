@@ -27,7 +27,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    public AuthResponse register(RegisterUserRequest request) throws DuplicateDataException {
+    public AuthResponse register(RegisterUserRequest request, HttpServletResponse response) throws DuplicateDataException {
 
         Optional<AppUser> foundUser = userRepository.findByEmail(request.email());
         if (foundUser.isPresent()) {
@@ -43,8 +43,9 @@ public class AuthenticationService {
                 .build();
         userRepository.save(appUser);
         String token = jwtService.generateToken(appUser);//todo
-        return new AuthResponse(token);
+        setCookie(response, token);
 
+        return new AuthResponse(token);
     }
 
     public void login(LoginRequest request, HttpServletResponse response) {
