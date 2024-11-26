@@ -1,7 +1,5 @@
 package ir.splitwise.splitbills.models;
 
-import com.google.gson.JsonElement;
-
 import java.util.List;
 
 public record AddBillRequest(long groupId,

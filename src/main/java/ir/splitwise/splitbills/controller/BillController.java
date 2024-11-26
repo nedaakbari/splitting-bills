@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidException;
@@ -23,6 +24,10 @@ public class BillController {
     private final BillService billService;
 
     @PostMapping("/add")
+    @Operation(
+//            summary = "add "
+            description = "this api used for adding a bill to a group"
+    )
     public BaseRequest addBillToAGroup(@RequestBody AddBillRequest addBillRequest)
             throws UserNotFoundException, ContentNotFoundException, InvalidException {
 
@@ -30,6 +35,9 @@ public class BillController {
     }
 
     @PostMapping("/modify")
+    @Operation(
+            description = "this api used for modify bill that already added, include items,expense of that and ..."
+    )
     public void modifyBill(@RequestBody ModifyBillRequest modifyBillRequest)
             throws UserNotFoundException, ContentNotFoundException {
 
@@ -37,6 +45,9 @@ public class BillController {
     }
 
     @PostMapping("/delete")
+    @Operation(
+            description = "this api used for delete a bill that already added to a group"
+    )
     public void deleteBill(@RequestBody BaseRequest baseRequest)
             throws ContentNotFoundException {
 

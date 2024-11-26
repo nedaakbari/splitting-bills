@@ -16,7 +16,7 @@ public class ShareGroup extends BaseEntity {
     private AppUser owner;
     @ManyToMany(fetch = FetchType.LAZY)
     private List<AppUser> members;
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "shareGroup")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "shareGroup")
     private List<Bill> billList;
     private double totalCost;//todo it must be autho calculate
     private String description;
