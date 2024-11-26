@@ -23,8 +23,7 @@ public class ShareGroupService {
     private final UserService userService;
 
     @Transactional(rollbackOn = Throwable.class)
-    public BaseRequest addShareGroup(ShareGroupRequest shareGroupRequest) throws UserNotFoundException {
-        AppUser owner = userService.findUserById(1);//todo user owner
+    public BaseRequest addShareGroup(ShareGroupRequest shareGroupRequest, AppUser owner) throws UserNotFoundException {
 
         List<Long> userIds = shareGroupRequest.userIds();
         List<AppUser> groupMembers = userService.findAllUserById(userIds);
@@ -56,8 +55,7 @@ public class ShareGroupService {
         return shareGroup;
     }
 
-    public void modifyShareGroup(ModifySharedGroupRequest request) throws Exception {
-        AppUser requester = userService.findUserById(1);//todo user owner
+    public void modifyShareGroup(ModifySharedGroupRequest request, AppUser requester) throws Exception {
         var foundGroup = findGroupById(request.groupId());
         GroupMode groupMode = foundGroup.getGroupMode();
         if (GroupMode.OWNER_ONLY.equals(groupMode) && !Objects.equals(requester.getId(), foundGroup.getOwner().getId())) {

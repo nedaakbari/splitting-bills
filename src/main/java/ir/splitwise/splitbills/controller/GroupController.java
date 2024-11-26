@@ -26,24 +26,27 @@ public class GroupController {
     private final ShareGroupService shareGroupService;
 
     @PostMapping("/add")
-    @Operation(
-            description = "this api used for build a new group," +
-                    "it has a justOwnerModify that if be true just the creator can add or modify the group and it's bills"
-    )
-    public BaseRequest addGroup(@RequestBody ShareGroupRequest request)
+    @Operation(description = "this api used for build a new group,it has a justOwnerModify that if be true just the creator can add or modify the group and it's bills")
+    public BaseRequest addGroup(@RequestBody ShareGroupRequest request, Authentication authentication)
             throws UserNotFoundException {
-
-        return shareGroupService.addShareGroup(request);
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof AppUser appUser) {
+            return shareGroupService.addShareGroup(request, appUser);
+        }
+        throw new UserNotFoundException("");//todo
     }
 
     @PostMapping("/modify")
     @Operation(
             description = "this api used for modify a group that already added "
     )
-    public void modifyGroup(@RequestBody ModifySharedGroupRequest request)
+    public void modifyGroup(@RequestBody ModifySharedGroupRequest request, Authentication authentication)
             throws Exception {//delete and modify possible fields
-
-        shareGroupService.modifyShareGroup(request);
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof AppUser appUser) {
+            shareGroupService.modifyShareGroup(request, appUser);
+        }
+        throw new UserNotFoundException("");//todo
     }
 
     @Operation(
