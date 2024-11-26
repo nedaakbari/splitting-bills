@@ -87,8 +87,7 @@ public class ShareGroupService {
         return shareGroupRepository.save(group);
     }
 
-    public List<ActiveShareGroupResponse> getAllActiveGroupOfAUser() throws UserNotFoundException {
-        AppUser requester = userService.findUserById(1);//todo user owner
+    public List<ActiveShareGroupResponse> getAllActiveGroupOfAUser(AppUser requester) throws UserNotFoundException {
         List<ShareGroup> allGroupAfActiveUser = findAllGroupAfActiveUser(requester.getId());
 
         return allGroupAfActiveUser.stream()
@@ -96,9 +95,7 @@ public class ShareGroupService {
 
     }
 
-    public List<ShareGroupResponse> getAllGroupOfAUser() throws UserNotFoundException {
-        AppUser requester = userService.findUserById(1);//todo user owner
-
+    public List<ShareGroupResponse> getAllGroupOfAUser(AppUser requester) throws UserNotFoundException {
         List<ShareGroup> allGroupAfUser = findAllGroupAfUser(requester.getId());
         return allGroupAfUser.stream()
                 .map(g -> new ShareGroupResponse(g.getTitle(), g.getTotalCost(), g.getDescription(), g.getState())).toList();

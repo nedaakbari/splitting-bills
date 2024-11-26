@@ -37,7 +37,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String token = authorization.substring(7);
-        String subject = (String) jwtService.getClaim(token, "subject");
+        String subject =  jwtService.extractUsername(token);
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
         if (subject != null && authentication == null) {
