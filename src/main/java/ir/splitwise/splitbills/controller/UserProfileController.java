@@ -1,11 +1,14 @@
 package ir.splitwise.splitbills.controller;
 
+import ir.splitwise.splitbills.CheckAppUser;
+import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.BaseRequest;
 import ir.splitwise.splitbills.models.DeptResponse;
 import ir.splitwise.splitbills.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +21,11 @@ public class UserProfileController {
     private final ExpenseService expenseService;
 
     @PostMapping("/expense")
-    public DeptResponse getAllDeptOfUser(@RequestBody BaseRequest request) throws UserNotFoundException, ContentNotFoundException {
-        expenseService.getALlDeptOfGroup(request.id());
-        return expenseService.getAllExpenseOfUser(request.id());
+    public DeptResponse getAllDeptOfUser(@RequestBody BaseRequest request, Authentication authentication)
+            throws ContentNotFoundException, UserNotFoundException {
+
+        AppUser appUser = CheckAppUser.checkUserInstance(authentication);
+//        expenseService.getALlDeptOfGroup(request.id());
+        return expenseService.getAllExpenseOfUser(request.id(), appUser);
     }
 }

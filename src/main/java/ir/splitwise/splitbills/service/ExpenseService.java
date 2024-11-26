@@ -55,20 +55,19 @@ public class ExpenseService {
             throws UserNotFoundException {
 
         double sharedCount = totalCost / userItems.size();
-        List<Long> list = userItems.stream().map(UserItem::getUserId).toList();
+        List<Long> list = userItems.stream().map(UserItem::getUserId).toList();//todo set?
         List<AppUser> allUserById = userService.findAllUserById(list);
         return allUserById.stream().map(user -> new Expense(user, bill, sharedCount)).toList();
     }
 
-    public DeptResponse getAllExpenseOfUser(long groupId) throws UserNotFoundException, ContentNotFoundException {
-        var userRequester = userService.findUserById(1);//todo get from spring
+    public DeptResponse getAllExpenseOfUser(long groupId, AppUser requester) throws ContentNotFoundException {
         ShareGroup userGroup = shareGroupService.findGroupById(groupId);
         double totalDept = 0;
         List<Bill> billList = userGroup.getBillList();//todo lazy for  items
         for (Bill bill : billList) {
-            List<Expense> expenses = expenseRepository.finaAllByBillIdAndUserId(bill.getId(), userRequester.getId());
+            List<Expense> expenses = expenseRepository.finaAllByBillIdAndUserId(bill.getId(), requester.getId());
             AppUser payer = bill.getPayer();
-            if (Objects.equals(payer.getId(), userRequester.getId())) {
+            if (Objects.equals(payer.getId(), requester.getId())) {
                 totalDept -= bill.getTotalCost();
             }
             if (!expenses.isEmpty()) {
@@ -78,8 +77,7 @@ public class ExpenseService {
         return new DeptResponse(totalDept);
     }
 
-    public List<?> getALlDeptOfGroup(long groupId) throws UserNotFoundException, ContentNotFoundException {
-        var userRequester = userService.findUserById(1);//todo get from spring
+    public List<?> getALlDeptOfGroup(long groupId, AppUser requester) throws ContentNotFoundException {
         ShareGroup group = shareGroupService.findGroupById(groupId);
         double totalCost = group.getTotalCost();//todo validate
 

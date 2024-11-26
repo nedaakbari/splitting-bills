@@ -5,8 +5,6 @@ import ir.splitwise.splitbills.exceptions.DuplicateDataException;
 import ir.splitwise.splitbills.models.LoginRequest;
 import ir.splitwise.splitbills.models.RegisterUserRequest;
 import ir.splitwise.splitbills.service.AuthenticationService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,10 +22,10 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public void register(@Validated @RequestBody RegisterUserRequest request ,HttpServletResponse response)//HttpServletResponse response
+    public void register(@Validated @RequestBody RegisterUserRequest request, HttpServletResponse response)//HttpServletResponse response
             throws DuplicateDataException {
 
-        authenticationService.register(request,response);
+        authenticationService.register(request, response);
     }
 
     @PostMapping("/login")
@@ -36,11 +34,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")//todo when set in cookie check it
-    public void logout(HttpServletRequest httpServletRequest) {
+    public void logout(HttpServletResponse response) {
         SecurityContextHolder.clearContext();
-        for (Cookie cookie : httpServletRequest.getCookies()) {
-            cookie.setMaxAge(0);
-        }
-        //delete cookie
+        authenticationService.logout(response);
     }
 }

@@ -56,6 +56,18 @@ public class AuthenticationService {
         //todo what happened if i have some excption here?
     }//todo fix not generate more than n request in seconds and when get new expitre other token
 
+
+    public void  logout(HttpServletResponse response){
+        ResponseCookie cookie = ResponseCookie.from("x-Auth-Cookie", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
     private static void setCookie(HttpServletResponse response, String token) {
         ResponseCookie cookie = ResponseCookie.from(COOKIE_NAME, token).httpOnly(true).path("/").build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

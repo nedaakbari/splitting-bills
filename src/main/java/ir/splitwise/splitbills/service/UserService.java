@@ -35,7 +35,7 @@ public class UserService {
         if (!foundUsers.isEmpty() && foundUsers.size() == ids.size()) {
             return foundUsers;
         }
-        log.info("not match");//todo
+        log.info("not match user with ids :{} ", ids);//todo
         throw new UserNotFoundException();
     }
 
