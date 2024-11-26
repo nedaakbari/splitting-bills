@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -22,6 +23,7 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
+@Order(2)
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -53,9 +55,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     }
 
     private static String getTokenFromCookie(HttpServletRequest request) {
-        for (Cookie cookie : request.getCookies()) {
-            if ("X-Auth-Token".equals(cookie.getName())) {
-                return cookie.getValue();
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("X-Auth-Token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
             }
         }
         return null;
