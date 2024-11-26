@@ -3,7 +3,7 @@ package ir.splitwise.splitbills.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
-import ir.splitwise.splitbills.exceptions.InvalidException;
+import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.AddBillRequest;
 import ir.splitwise.splitbills.models.BaseRequest;
@@ -29,7 +29,7 @@ public class BillController {
             description = "this api used for adding a bill to a group"
     )
     public BaseRequest addBillToAGroup(@RequestBody AddBillRequest addBillRequest)
-            throws UserNotFoundException, ContentNotFoundException, InvalidException {
+            throws UserNotFoundException, ContentNotFoundException, InvalidDataException {
 
         return billService.addBill(addBillRequest);
     }

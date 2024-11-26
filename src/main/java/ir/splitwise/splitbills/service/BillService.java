@@ -5,7 +5,7 @@ import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.entity.Bill;
 import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
-import ir.splitwise.splitbills.exceptions.InvalidException;
+import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.*;
 import ir.splitwise.splitbills.repository.BillRepository;
@@ -25,7 +25,7 @@ public class BillService {
 
     @Transactional(rollbackOn = Throwable.class)
     public BaseRequest addBill(AddBillRequest request)
-            throws UserNotFoundException, ContentNotFoundException, InvalidException {
+            throws UserNotFoundException, ContentNotFoundException, InvalidDataException {
         long groupId = request.groupId();
         var foundGroup = shareGroupService.findGroupById(groupId);
         var creator = userService.findUserById(request.payerId());
@@ -85,7 +85,7 @@ public class BillService {
     }
 
     private static Bill buildBill(AddBillRequest addBillRequest, ShareGroup shareGroup,
-                                  AppUser payer, AppUser creator) throws InvalidException {
+                                  AppUser payer, AppUser creator) throws InvalidDataException {
         Bill bill = new Bill();
         bill.setDescription(addBillRequest.description());
         bill.setTitle(addBillRequest.title());
