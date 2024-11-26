@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name= "Bill APIs",
-description = "This category includes APIs related to bill")
+@Tag(name = "Bill APIs",
+        description = "This category includes APIs related to bill")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/bill")

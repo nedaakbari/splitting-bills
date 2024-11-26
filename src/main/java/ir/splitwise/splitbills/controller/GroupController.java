@@ -2,6 +2,7 @@ package ir.splitwise.splitbills.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import ir.splitwise.splitbills.CheckAppUser;
 import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
@@ -17,8 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Share Group APIs",
-        description = "This category includes APIs for groups who want to share expenses. ")
+@Tag(name = "Share Group APIs", description = "This category includes APIs for groups who want to share expenses. ")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/group")
@@ -29,6 +29,7 @@ public class GroupController {
     @Operation(description = "this api used for build a new group,it has a justOwnerModify that if be true just the creator can add or modify the group and it's bills")
     public BaseRequest addGroup(@RequestBody ShareGroupRequest request, Authentication authentication)
             throws UserNotFoundException {
+
         Object principal = authentication.getPrincipal();
         if (principal instanceof AppUser appUser) {
             return shareGroupService.addShareGroup(request, appUser);
@@ -37,21 +38,15 @@ public class GroupController {
     }
 
     @PostMapping("/modify")
-    @Operation(
-            description = "this api used for modify a group that already added "
-    )
+    @Operation(description = "this api used for modify a group that already added ")
     public void modifyGroup(@RequestBody ModifySharedGroupRequest request, Authentication authentication)
             throws Exception {//delete and modify possible fields
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof AppUser appUser) {
-            shareGroupService.modifyShareGroup(request, appUser);
-        }
-        throw new UserNotFoundException("");//todo
+
+        AppUser appUser = CheckAppUser.checkUserInstance(authentication);
+        shareGroupService.modifyShareGroup(request, appUser);
     }
 
-    @Operation(
-            description = "this api used for delete a group that already added"
-    )
+    @Operation(description = "this api used for delete a group that already added")
     @PostMapping("/delete")
     public void deleteGroup(@RequestBody BaseRequest request)
             throws ContentNotFoundException {
@@ -60,27 +55,17 @@ public class GroupController {
     }
 
 
-    @Operation(
-            description = "this api shows all groups the user is member of"
-    )
+    @Operation(description = "this api shows all groups the user is member of")
     @GetMapping("/get-all")
     public List<ShareGroupResponse> getAllGroupOfUser(Authentication authentication) throws UserNotFoundException {
-//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof AppUser appUser) {
-            return shareGroupService.getAllGroupOfAUser(appUser);
-        }
-        throw new UserNotFoundException("");//todo
+        AppUser appUser = CheckAppUser.checkUserInstance(authentication);
+        return shareGroupService.getAllGroupOfAUser(appUser);
     }
 
     @GetMapping("/get-all-active")
     public List<ActiveShareGroupResponse> getAllActiveGroupOfUser(Authentication authentication) throws UserNotFoundException {
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof AppUser appUser) {
-            return shareGroupService.getAllActiveGroupOfAUser(appUser);
-        }
-        throw new UserNotFoundException("");//todo
-
+        AppUser appUser = CheckAppUser.checkUserInstance(authentication);
+        return shareGroupService.getAllActiveGroupOfAUser(appUser);
     }
 
 //    @GetMapping("/get-all-in-progress")
