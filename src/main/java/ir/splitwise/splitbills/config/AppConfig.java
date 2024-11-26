@@ -1,6 +1,5 @@
 package ir.splitwise.splitbills.config;
 
-import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,10 +25,11 @@ public class AppConfig {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
                 return userRepository.findByEmail(username)
-                        .orElseThrow(()->new UsernameNotFoundException("user: " + username + "not Found"));
+                        .orElseThrow(() -> new UsernameNotFoundException("user: " + username + "not Found"));
             }
         };
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
@@ -39,7 +39,7 @@ public class AppConfig {
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        daoAuthenticationProvider.setUserDetailsService();
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService());
         return daoAuthenticationProvider;
     }
 
