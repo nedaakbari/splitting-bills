@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 @Service
 public class JwtService {
@@ -25,6 +26,18 @@ public class JwtService {
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY)), SignatureAlgorithm.ES256)
                 .compact();
 
+    }
+
+    public boolean isTokenValid(String token, String userUsername) {
+        boolean isTokenExpired = isTokenExpired(token);
+        String subject = (String) getClaim(token, "subject");
+        return isTokenExpired && Objects.equals(userUsername, subject);
+    }
+
+
+    private boolean isTokenExpired(String token) {
+        Date iat = (Date) getClaim(token, "iat");
+        return iat.before(new Date());
     }
 
     public Object getClaim(String token, String name) {
