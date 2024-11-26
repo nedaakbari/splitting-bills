@@ -1,10 +1,9 @@
 package ir.splitwise.splitbills.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -12,8 +11,10 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class AppUser extends BaseEntity {//todo what happen if i want to add someOne is not in app
-    private String username;
+    private String firstname;
+    private String lastName;
     private String email;
     @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
 //    @ToString.Exclude
@@ -22,7 +23,18 @@ public class AppUser extends BaseEntity {//todo what happen if i want to add som
 //    @ToString.Exclude
     private List<Expense> expenses;
 
-
-    //todo List<String> roles
+    private String password;
+    @Enumerated(EnumType.STRING)
+    private Role role;
     //todo profile picture
+
+    @Builder
+    public AppUser(String firstname, String lastName,String email,
+                   String password, Role role) {
+        this.firstname = firstname;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 }
