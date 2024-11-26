@@ -7,7 +7,10 @@ import ir.splitwise.splitbills.models.AuthResponse;
 import ir.splitwise.splitbills.models.LoginRequest;
 import ir.splitwise.splitbills.models.RegisterUserRequest;
 import ir.splitwise.splitbills.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +21,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
+    private static final String COOKIE_NAME = "X-Auth-Token";
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
@@ -43,11 +47,16 @@ public class AuthenticationService {
 
     }
 
-    public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+    public void login(LoginRequest request, HttpServletResponse response) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         AppUser user = userRepository.findByEmail(request.email()).orElseThrow();
         String token = jwtService.generateToken(user);
-        return new AuthResponse(token);
+        setCookie(response, token);
+        //todo what happened if i have some excption here?
     }//todo fix not generate more than n request in seconds and when get new expitre other token
+
+    private static void setCookie(HttpServletResponse response, String token) {
+        ResponseCookie cookie = ResponseCookie.from(COOKIE_NAME, token).httpOnly(true).path("/").build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
 }

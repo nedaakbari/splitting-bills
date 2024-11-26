@@ -8,6 +8,7 @@ import ir.splitwise.splitbills.models.RegisterUserRequest;
 import ir.splitwise.splitbills.service.AuthenticationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
@@ -29,8 +30,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Validated @RequestBody LoginRequest request) {
-        return authenticationService.login(request);
+    public void login(@Validated @RequestBody LoginRequest request, HttpServletResponse httpServletResponse) {
+        authenticationService.login(request, httpServletResponse);
     }
 
     @PostMapping("/logout")//todo when set in cookie check it
