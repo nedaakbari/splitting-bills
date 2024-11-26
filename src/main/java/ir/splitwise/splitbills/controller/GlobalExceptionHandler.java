@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.controller;
 
+import ir.splitwise.splitbills.exceptions.DuplicateDataException;
 import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.ErrorInfo;
@@ -8,7 +9,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
-import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ErrorInfo("بدنه نمیتواند خالی باشد"), new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({UserNotFoundException.class, InvalidDataException.class})
+    @ExceptionHandler({UserNotFoundException.class, InvalidDataException.class, DuplicateDataException.class})
     public ResponseEntity<ErrorInfo> handleInvalidDataException(Exception e) {
         return new ResponseEntity<>(new ErrorInfo(e.getMessage()), new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }

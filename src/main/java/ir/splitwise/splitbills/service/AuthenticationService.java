@@ -2,11 +2,14 @@ package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.entity.Role;
+import ir.splitwise.splitbills.exceptions.DuplicateDataException;
 import ir.splitwise.splitbills.models.RegisterResponse;
 import ir.splitwise.splitbills.models.RegisterUserRequest;
 import ir.splitwise.splitbills.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +17,13 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
-    public RegisterResponse register(RegisterUserRequest request) {
+    public RegisterResponse register(RegisterUserRequest request) throws DuplicateDataException {
+
+        Optional<AppUser> foundUser = userRepository.findByEmail(request.email());
+        if (foundUser.isPresent()) {
+            throw new DuplicateDataException("this email is already exist");
+        }
+
         AppUser appUser = AppUser.builder()
                 .firstname(request.firstName()).lastName(request.lastname())
                 .email(request.email()).password(request.password())//todo
