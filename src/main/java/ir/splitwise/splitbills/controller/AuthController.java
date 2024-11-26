@@ -33,7 +33,7 @@ public class AuthController {
         authenticationService.login(request, httpServletResponse);
     }
 
-    @PostMapping("/logout")//todo when set in cookie check it
+    @PostMapping("/logout")
     public void logout(HttpServletResponse response) {
         SecurityContextHolder.clearContext();
         authenticationService.logout(response);
