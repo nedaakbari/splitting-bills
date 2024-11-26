@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.ActiveShareGroupResponse;
@@ -13,7 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(name= "Share Group APIs",
+description = "This category includes APIs for groups who want to share expenses. ")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/group")

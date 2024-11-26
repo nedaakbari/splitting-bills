@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name= "Bill APIs",
+description = "This category includes APIs related to bill")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/bill")
