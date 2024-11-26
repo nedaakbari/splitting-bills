@@ -31,8 +31,10 @@ public class AuthenticationService {
         }
 
         AppUser appUser = AppUser.builder()
-                .firstname(request.firstName()).lastName(request.lastname())
-                .email(request.email()).password(passwordEncoder.encode(request.password()))
+                .firstname(request.firstName())
+                .lastName(request.lastname())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
                 .role(Role.USER)
                 .build();
         userRepository.save(appUser);

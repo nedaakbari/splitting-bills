@@ -4,6 +4,7 @@ import ir.splitwise.splitbills.exceptions.DuplicateDataException;
 import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.ErrorInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
@@ -35,6 +37,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception exception) {
+        log.error(exception.getMessage(), exception.getStackTrace());
         return new ResponseEntity<>("an error happened: " + exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

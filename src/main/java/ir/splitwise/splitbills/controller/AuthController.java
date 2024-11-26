@@ -24,19 +24,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthenticationService authenticationService;
 
-
     @PostMapping("/register")
     public AuthResponse register(@Validated(value = AppUser.class) @RequestBody RegisterUserRequest request) throws DuplicateDataException {
         return authenticationService.register(request);
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest request) {
+    public AuthResponse login(@Validated @RequestBody LoginRequest request) {
         return authenticationService.login(request);
     }
 
-    @PostMapping("/logout")
-    public void logout() {
-        //todo
+    @PostMapping("/logout")//todo when set in cookie check it
+    public void logout(HttpServletRequest httpServletRequest) {
+        SecurityContextHolder.clearContext();
+        for (Cookie cookie : httpServletRequest.getCookies()) {
+            cookie.setMaxAge(0);
+        }
+        //delete cookie
     }
 }

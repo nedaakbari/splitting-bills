@@ -15,7 +15,7 @@ import java.util.Objects;
 
 @Service
 public class JwtService {
-    private static final String SECRET_KEY = "key";
+    private static final String SECRET_KEY = "aJsi1dXkGVV/nHt5dmjkl1hXc2Plw3aW6rz5M+73d1I=";
 
     public String generateToken(AppUser appUser) {
         return Jwts.builder()
@@ -23,7 +23,7 @@ public class JwtService {
                 .setSubject(appUser.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date())//todo
-                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY)), SignatureAlgorithm.ES256)
+                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY)), SignatureAlgorithm.HS256)
                 .compact();
 
     }
@@ -52,7 +52,7 @@ public class JwtService {
         return claim.get(name);
     }
 
-    private static SecretKey getSecretKey() {
+    private SecretKey getSecretKey() {
         byte[] key = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(key);
     }

@@ -1,3 +1,4 @@
+/*
 package ir.splitwise.splitbills.filters;
 
 import jakarta.servlet.FilterChain;
@@ -16,8 +17,10 @@ import java.util.Enumeration;
 
 @Component
 public class Log extends OncePerRequestFilter {
+*/
 /*    @Value("${logger.file.path}")
-    private String path;*/
+    private String path;*//*
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -41,3 +44,4 @@ public class Log extends OncePerRequestFilter {
         Files.writeString(logFile, body);
     }
 }
+*/
