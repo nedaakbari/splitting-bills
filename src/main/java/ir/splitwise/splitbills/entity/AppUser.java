@@ -1,11 +1,13 @@
 package ir.splitwise.splitbills.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ir.splitwise.splitbills.models.enumeration.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Indexed;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,21 +17,25 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(indexes = @Index(name = "app_user_index", columnList = "email"))
 public class AppUser extends BaseEntity implements UserDetails {//todo what happen if i want to add someOne is not in app
     private String firstname;
     private String lastName;
     private String email;
+
     @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<ShareGroup> groupIds;
+
     @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Expense> expenses;
 
+    @JsonIgnore
     private String password;
+
     @Enumerated(EnumType.STRING)
     private Role role;
-    //todo profile picture
 
     @Builder
     public AppUser(String firstname, String lastName, String email,
