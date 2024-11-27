@@ -19,6 +19,13 @@ import java.util.Map;
 public class PaymentInfoService {
     private final ExpenseService expenseService;
     private final PaymentInfoRepository paymentInfoRepository;
+    private final ShareGroupService shareGroupService;
+
+    public List<PaymentInfo> getPayInfoOfGroup(long shareGroupId) throws ContentNotFoundException {
+        var foundGroup = shareGroupService.findGroupById(shareGroupId);
+        return getPayInfoOfGroup(foundGroup);
+
+    }
 
     public List<PaymentInfo> getPayInfoOfGroup(ShareGroup shareGroup) throws ContentNotFoundException {
         var deptOfGroup = expenseService.getALlDeptOfGroup(shareGroup.getId());
@@ -39,7 +46,7 @@ public class PaymentInfoService {
 
         var paymentInfoList = processPayment(shareGroup, deptors, recivers);
         paymentInfoRepository.saveAll(paymentInfoList);//todo active batch
-        return null;
+        return paymentInfoList;
     }
 
     private List<PaymentInfo> processPayment(ShareGroup shareGroup, List<Map.Entry<AppUser, Double>> deptors, List<Map.Entry<AppUser, Double>> recivers) {
@@ -50,14 +57,14 @@ public class PaymentInfoService {
             var depter = deptors.get(i);
             var depterCost = depter.getValue();
 
-            var reciver = recivers.get(i);
+            var reciver = recivers.get(j);
             var reciverCost = reciver.getValue();
 
-            var costToPay = Math.min(depterCost, reciverCost);
+            var costToPay = Math.min(-depterCost, reciverCost);
             var paymentInfo = buildPaymentInfo(depter, reciver, shareGroup, costToPay);
             paymentInfoList.add(paymentInfo);
 
-            deptors.get(i).setValue(depterCost - costToPay);
+            deptors.get(i).setValue(depterCost + costToPay);
             recivers.get(i).setValue(reciverCost - costToPay);
 
             if (deptors.get(i).getValue() == 0) {

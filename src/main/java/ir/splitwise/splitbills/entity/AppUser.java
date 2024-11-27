@@ -24,7 +24,7 @@ public class AppUser extends BaseEntity implements UserDetails {//todo what happ
     @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
 //    @ToString.Exclude
     private List<ShareGroup> groupIds;
-    @OneToMany(mappedBy = "appUser")
+    @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
 //    @ToString.Exclude
     private List<Expense> expenses;
 

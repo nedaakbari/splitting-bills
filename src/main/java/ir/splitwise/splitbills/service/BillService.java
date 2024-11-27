@@ -47,13 +47,6 @@ public class BillService {
         var groupCost = foundGroup.getTotalCost();
         foundGroup.setTotalCost(totalCost + groupCost);
         shareGroupService.saveGroupInDb(foundGroup);
-
-        List<PaymentInfo> payInfoOfGroup = paymentInfoService.getPayInfoOfGroup(foundGroup);
-
-        for (PaymentInfo paymentInfo : payInfoOfGroup) {
-
-
-        }
         return new BaseRequest(savedBill.getId());//todo it is necessary?
     }
 
