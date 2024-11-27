@@ -54,8 +54,6 @@ public class BillService {
 
 
         }
-
-
         return new BaseRequest(savedBill.getId());//todo it is necessary?
     }
 

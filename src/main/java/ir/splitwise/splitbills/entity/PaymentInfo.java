@@ -19,8 +19,13 @@ public class PaymentInfo {
     private AppUser payer;
     @ManyToOne
     private AppUser receiver;
+    private double amount;
+
     private PayWay payWay;
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     private Date creationDate;
+
+    @ManyToOne
+    private Bill billList;
 }
