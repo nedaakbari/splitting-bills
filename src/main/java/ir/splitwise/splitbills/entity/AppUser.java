@@ -2,16 +2,14 @@ package ir.splitwise.splitbills.entity;
 
 import ir.splitwise.splitbills.models.enumeration.Role;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -22,10 +20,10 @@ public class AppUser extends BaseEntity implements UserDetails {//todo what happ
     private String lastName;
     private String email;
     @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
-//    @ToString.Exclude
+    @ToString.Exclude
     private List<ShareGroup> groupIds;
     @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
-//    @ToString.Exclude
+    @ToString.Exclude
     private List<Expense> expenses;
 
     private String password;
@@ -41,6 +39,18 @@ public class AppUser extends BaseEntity implements UserDetails {//todo what happ
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AppUser appUser)) return false;
+        return Objects.equals(getEmail(), appUser.getEmail());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getEmail());
     }
 
     @Override
