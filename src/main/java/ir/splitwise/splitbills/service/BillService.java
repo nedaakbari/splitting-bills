@@ -24,17 +24,26 @@ public class BillService {
     private final ExpenseService expenseService;
 
     @Transactional(rollbackOn = Throwable.class)
-    public BaseRequest addBill(AddBillRequest request)
+    public BaseRequest addBill(AddBillRequest request,AppUser appUser)
             throws UserNotFoundException, ContentNotFoundException, InvalidDataException {
+        List<ItemRequest> items = request.items();
+        double totalCost = getBillTotalCost(items);
+
+        if (totalCost!= request.totalCost()){
+            throw new InvalidDataException("totalCost is not match");
+        }
+
         long groupId = request.groupId();
         var foundGroup = shareGroupService.findGroupById(groupId);
-        var creator = userService.findUserById(request.payerId());
         var payer = userService.findUserById(request.payerId());
-        var bill = buildBill(request, foundGroup, payer, creator);
+        var bill = buildBill(request, foundGroup, payer, appUser);
+
+
+
         var savedBill = billRepository.save(bill);
         expenseService.addExpense(bill, request.items());
-        List<ItemRequest> items = request.items();
-        double totalCost = getTotalCost(items);
+
+
         double groupCost = foundGroup.getTotalCost();
         foundGroup.setTotalCost(totalCost + groupCost);
         shareGroupService.saveGroupInDb(foundGroup);
@@ -52,13 +61,13 @@ public class BillService {
         billRepository.save(foundBill);
 
         List<ItemRequest> items = request.items();
-        double totalCost = getTotalCost(items);
+        double totalCost = getBillTotalCost(items);
         ShareGroup shareGroup = foundBill.getShareGroup();
         shareGroup.setTotalCost(totalCost);
         shareGroupService.saveGroupInDb(shareGroup);
     }
 
-    private static double getTotalCost(List<ItemRequest> items) {
+    private static double getBillTotalCost(List<ItemRequest> items) {
         for (ItemRequest item : items) {
             List<UserItem> userItems = item.getUserItems();
             List<Long> list = userItems.stream().map(UserItem::getUserId).toList();
@@ -66,8 +75,6 @@ public class BillService {
         double totalCost = 0;
         for (ItemRequest item : items) {
             totalCost += item.getTotalCost();
-
-
         }
         return totalCost;
     }

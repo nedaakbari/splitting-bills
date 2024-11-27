@@ -34,7 +34,7 @@ public class PaymentInfoController {
     }
 
     @Operation(description = "this api used for calculating expense of a user")
-    @PostMapping("/get-all-for-group")
+    @PostMapping("/get-all-for-user")
     public List<PaymentResponse> getAllPaymentInfoOfUser(@RequestBody BaseRequest request, Authentication authentication)
             throws ContentNotFoundException, UserNotFoundException {
 

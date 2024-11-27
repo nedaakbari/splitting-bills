@@ -2,14 +2,18 @@ package ir.splitwise.splitbills.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import ir.splitwise.splitbills.CheckAppUser;
+import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.AddBillRequest;
 import ir.splitwise.splitbills.models.BaseRequest;
 import ir.splitwise.splitbills.models.ModifyBillRequest;
+import ir.splitwise.splitbills.service.AuthenticationService;
 import ir.splitwise.splitbills.service.BillService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,10 +31,10 @@ public class BillController {
     @Operation(//            summary = "add "
             description = "this api used for adding a bill to a group"
     )
-    public BaseRequest addBillToAGroup(@RequestBody AddBillRequest addBillRequest)
+    public BaseRequest addBillToAGroup(@RequestBody AddBillRequest addBillRequest, Authentication authentication)
             throws UserNotFoundException, ContentNotFoundException, InvalidDataException {
-
-        return billService.addBill(addBillRequest);
+        AppUser appUser = CheckAppUser.checkUserInstance(authentication);
+        return billService.addBill(addBillRequest,appUser);
     }
 
     @PostMapping("/modify")
