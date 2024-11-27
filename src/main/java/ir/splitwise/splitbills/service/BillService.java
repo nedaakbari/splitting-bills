@@ -48,7 +48,7 @@ public class BillService {
         foundGroup.setTotalCost(totalCost + groupCost);
         shareGroupService.saveGroupInDb(foundGroup);
 
-        List<PaymentInfo> payInfoOfGroup = paymentInfoService.getPayInfoOfGroup(foundGroup.getId());
+        List<PaymentInfo> payInfoOfGroup = paymentInfoService.getPayInfoOfGroup(foundGroup);
 
         for (PaymentInfo paymentInfo : payInfoOfGroup) {
 

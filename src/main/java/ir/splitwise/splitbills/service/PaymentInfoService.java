@@ -1,10 +1,11 @@
 package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
-import ir.splitwise.splitbills.entity.Bill;
 import ir.splitwise.splitbills.entity.PaymentInfo;
+import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.models.PaymentResponse;
+import ir.splitwise.splitbills.repository.PaymentInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +18,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PaymentInfoService {
     private final ExpenseService expenseService;
+    private final PaymentInfoRepository paymentInfoRepository;
 
-    public List<PaymentInfo> getPayInfoOfGroup(long groupId) throws ContentNotFoundException {
-        Map<AppUser, Double> deptOfGroup = expenseService.getALlDeptOfGroup(groupId);
+    public List<PaymentInfo> getPayInfoOfGroup(ShareGroup shareGroup) throws ContentNotFoundException {
+        var deptOfGroup = expenseService.getALlDeptOfGroup(shareGroup.getId());
         List<Map.Entry<AppUser, Double>> deptors = new ArrayList<>();
         List<Map.Entry<AppUser, Double>> recivers = new ArrayList<>();
 
-        for (Map.Entry<AppUser, Double> appUserDoubleEntry : deptOfGroup.entrySet()) {
+        for (var appUserDoubleEntry : deptOfGroup.entrySet()) {
             var dept = appUserDoubleEntry.getValue();
 
             if (dept < 0) {
@@ -35,32 +37,50 @@ public class PaymentInfoService {
         deptors.sort(Comparator.comparingDouble(Map.Entry::getValue));
         recivers.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
 
-
+        var paymentInfoList = processPayment(shareGroup, deptors, recivers);
+        paymentInfoRepository.saveAll(paymentInfoList);//todo active batch
         return null;
     }
 
+    private List<PaymentInfo> processPayment(ShareGroup shareGroup, List<Map.Entry<AppUser, Double>> deptors, List<Map.Entry<AppUser, Double>> recivers) {
 
-    private void processPayment(Bill bill,
-                                List<Map.Entry<AppUser, Double>> deptors,
-                                List<Map.Entry<AppUser, Double>> recivers) {
-        List<String> calculate = new ArrayList<>();
+        List<PaymentInfo> paymentInfoList = new ArrayList<>();
         int i = 0, j = 0;
         while (i < deptors.size() && j < recivers.size()) {
-            Map.Entry<AppUser, Double> depter = deptors.get(i);
-            Double depterCost = depter.getValue();
+            var depter = deptors.get(i);
+            var depterCost = depter.getValue();
 
-            Map.Entry<AppUser, Double> reciver = recivers.get(i);
-            Double reciverCost = reciver.getValue();
+            var reciver = recivers.get(i);
+            var reciverCost = reciver.getValue();
 
+            var costToPay = Math.min(depterCost, reciverCost);
+            var paymentInfo = buildPaymentInfo(depter, reciver, shareGroup, costToPay);
+            paymentInfoList.add(paymentInfo);
 
-            double amountToPay = Math.min(depterCost, reciverCost);
-            PaymentInfo paymentInfo = new PaymentInfo();
-            paymentInfo.setPayer(depter.getKey());
-            paymentInfo.setReceiver(reciver.getKey());
-            paymentInfo.setBillList(bill);
+            deptors.get(i).setValue(depterCost - costToPay);
+            recivers.get(i).setValue(reciverCost - costToPay);
+
+            if (deptors.get(i).getValue() == 0) {
+                i++;
+            }
+            if (recivers.get(j).getValue() == 0) {
+                j++;
+            }
         }
+        return paymentInfoList;
+    }
 
-
+    private static PaymentInfo buildPaymentInfo(Map.Entry<AppUser, Double> depter,
+                                                Map.Entry<AppUser, Double> reciver,
+                                                ShareGroup shareGroup,
+                                                double costToPay
+    ) {
+        PaymentInfo paymentInfo = new PaymentInfo();
+        paymentInfo.setPayer(depter.getKey());
+        paymentInfo.setReceiver(reciver.getKey());
+        paymentInfo.setShareGroup(shareGroup);
+        paymentInfo.setAmount(costToPay);
+        return paymentInfo;
     }
 
     public List<PaymentResponse> getPayInfoOfUser(long groupId, AppUser requester) throws ContentNotFoundException {
