@@ -4,8 +4,10 @@ import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.entity.PaymentInfo;
 import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
+import ir.splitwise.splitbills.models.AppUserResponse;
 import ir.splitwise.splitbills.models.PaymentResponse;
 import ir.splitwise.splitbills.repository.PaymentInfoRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,10 +24,15 @@ public class PaymentInfoService {
     private final PaymentInfoRepository paymentInfoRepository;
     private final ShareGroupService shareGroupService;
 
-    public List<PaymentInfo> getPayInfoOfGroup(long shareGroupId) throws ContentNotFoundException {
+    @Transactional
+    public List<PaymentResponse> getPayInfoOfGroup(long shareGroupId) throws ContentNotFoundException {
         var foundGroup = shareGroupService.findGroupById(shareGroupId);
-        return getPayInfoOfGroup(foundGroup);
+        List<PaymentInfo> payInfoOfGroup = getPayInfoOfGroup(foundGroup);
 
+        return payInfoOfGroup.stream().map(paymentInfo ->//todo fix the load of all info
+                new PaymentResponse(new AppUserResponse(paymentInfo.getPayer().getUsername()),
+                        new AppUserResponse(paymentInfo.getReceiver().getUsername())
+                        , paymentInfo.getAmount())).collect(Collectors.toList());
     }
 
     public List<PaymentInfo> getPayInfoOfGroup(ShareGroup shareGroup) throws ContentNotFoundException {

@@ -28,7 +28,7 @@ public class PaymentInfoController {
 
     @Operation(description = "this api used for calculating expense and show who should pay to another one in group")
     @PostMapping("/get-all-for-group")
-    public List<PaymentInfo> getAllPaymentInfo(@RequestBody BaseRequest request)//PaymentResponse
+    public List<PaymentResponse> getAllPaymentInfo(@RequestBody BaseRequest request)//PaymentResponse
             throws ContentNotFoundException {
 
         return paymentInfoService.getPayInfoOfGroup(request.id());
