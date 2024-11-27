@@ -99,6 +99,6 @@ public class ExpenseService {
                 deptOfGroup.put(appUser, userDept);
             }
         }
-        return null;
+        return deptOfGroup;
     }
 }

@@ -3,9 +3,12 @@ package ir.splitwise.splitbills.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,4 +31,7 @@ public class Bill extends BaseEntity {
     @ManyToOne
     @ToString.Exclude
     private ShareGroup shareGroup;
+
+    @OneToMany(mappedBy = "bill")
+    private List<Expense> expensesList;
 }

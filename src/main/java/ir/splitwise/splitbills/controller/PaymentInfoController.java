@@ -30,7 +30,8 @@ public class PaymentInfoController {
     public List<PaymentResponse> getAllPaymentInfo(@RequestBody BaseRequest request)
             throws ContentNotFoundException {
 
-        return paymentInfoService.getPayInfoOfGroup(request.id());
+        return null;
+//        return paymentInfoService.getPayInfoOfGroup(request.id());
     }
 
     @Operation(description = "this api used for calculating expense of a user")

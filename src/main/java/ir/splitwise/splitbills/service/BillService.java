@@ -3,14 +3,12 @@ package ir.splitwise.splitbills.service;
 import com.google.gson.Gson;
 import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.entity.Bill;
+import ir.splitwise.splitbills.entity.PaymentInfo;
 import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
-import ir.splitwise.splitbills.models.AddBillRequest;
-import ir.splitwise.splitbills.models.BaseRequest;
-import ir.splitwise.splitbills.models.ItemRequest;
-import ir.splitwise.splitbills.models.ModifyBillRequest;
+import ir.splitwise.splitbills.models.*;
 import ir.splitwise.splitbills.repository.BillRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ public class BillService {
     private final BillRepository billRepository;
     private final ShareGroupService shareGroupService;
     private final ExpenseService expenseService;
+    private final PaymentInfoService paymentInfoService;
     private final Gson gson;
 
     @Transactional(rollbackOn = Throwable.class)
@@ -46,7 +45,14 @@ public class BillService {
         foundGroup.setTotalCost(totalCost + groupCost);
         shareGroupService.saveGroupInDb(foundGroup);
 
-        //todo update paymentInfo
+        List<PaymentInfo> payInfoOfGroup = paymentInfoService.getPayInfoOfGroup(foundGroup.getId());
+
+        for (PaymentInfo paymentInfo : payInfoOfGroup) {
+
+
+        }
+
+
         return new BaseRequest(savedBill.getId());//todo it is necessary?
     }
 
@@ -88,8 +94,8 @@ public class BillService {
         return billRepository.findById(id).orElseThrow(() -> new ContentNotFoundException("bill " + id + "not found"));
     }
 
-    private  Bill buildBill(AddBillRequest addBillRequest, ShareGroup shareGroup,
-                                  AppUser payer, AppUser creator) {
+    private Bill buildBill(AddBillRequest addBillRequest, ShareGroup shareGroup,
+                           AppUser payer, AppUser creator) {
         //todo user ModelMapper
         var bill = new Bill();
         bill.setDescription(addBillRequest.description());
@@ -103,7 +109,7 @@ public class BillService {
     }
 
     public void deleteBill(long id) throws ContentNotFoundException {
-        Bill founfBill = findBillFromDb(id);
+        var founfBill = findBillFromDb(id);
         billRepository.delete(founfBill);//todo it is required to keep it for history? i dont think so
     }
 }
