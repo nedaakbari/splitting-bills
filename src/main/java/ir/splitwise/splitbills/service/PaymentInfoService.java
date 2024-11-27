@@ -1,8 +1,8 @@
 package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
-import ir.splitwise.splitbills.entity.PaymentInfo;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
+import ir.splitwise.splitbills.models.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,10 @@ import java.util.Map;
 public class PaymentInfoService {
     private final ExpenseService expenseService;
 
-    public List<PaymentInfo> processingPayInfo(long groupId) throws ContentNotFoundException {
+    public List<PaymentResponse> getPayInfoOfGroup(long groupId) throws ContentNotFoundException {
+        //pay to who
+        //receive from who
+        //for group
         Map<AppUser, Double> deptOfGroup = expenseService.getALlDeptOfGroup(groupId);
         for (Map.Entry<AppUser, Double> appUserDoubleEntry : deptOfGroup.entrySet()) {
             AppUser appUser = appUserDoubleEntry.getKey();
@@ -26,6 +29,14 @@ public class PaymentInfoService {
 
             }
         }
+        return null;
+    }
+
+
+    public List<PaymentResponse> getPayInfoOfUser(long groupId, AppUser requester) throws ContentNotFoundException {
+        //pay to who
+        //receive from who
+        //just for him
         return null;
     }
 
