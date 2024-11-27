@@ -35,7 +35,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public void logout(HttpServletResponse response) {
-        SecurityContextHolder.clearContext();
+        SecurityContextHolder.clearContext();//todo it is true?
         authenticationService.logout(response);
     }
 }

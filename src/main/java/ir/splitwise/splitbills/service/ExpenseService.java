@@ -77,7 +77,7 @@ public class ExpenseService {
         return new DeptResponse(totalDept);
     }
 
-    public List<?> getALlDeptOfGroup(long groupId, AppUser requester) throws ContentNotFoundException {
+    public Map<AppUser, Double> getALlDeptOfGroup(long groupId) throws ContentNotFoundException {
         ShareGroup group = shareGroupService.findGroupById(groupId);
         double totalCost = group.getTotalCost();//todo validate
 

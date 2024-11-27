@@ -1,7 +1,7 @@
 package ir.splitwise.splitbills.repository;
 
 import ir.splitwise.splitbills.entity.ShareGroup;
-import ir.splitwise.splitbills.entity.State;
+import ir.splitwise.splitbills.models.enumeration.State;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

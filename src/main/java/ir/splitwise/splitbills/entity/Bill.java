@@ -17,9 +17,8 @@ public class Bill extends BaseEntity {
     private double totalCost;
     @ManyToOne
     private AppUser payer;
-    //    @Lob//todo how many character?
     @Column(columnDefinition = "TEXT")
-    private String items;//todo pairClass?
+    private String items;
 
     @ManyToOne//todo can not modify
     private AppUser creator;

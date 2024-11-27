@@ -1,6 +1,6 @@
 package ir.splitwise.splitbills.entity;
 
-import ir.splitwise.splitbills.models.PayWay;
+import ir.splitwise.splitbills.models.enumeration.PayWay;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.entity;
 
+import ir.splitwise.splitbills.models.enumeration.Role;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

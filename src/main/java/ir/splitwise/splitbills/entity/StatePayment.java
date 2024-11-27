@@ -1,6 +1,6 @@
 package ir.splitwise.splitbills.entity;
 
-import ir.splitwise.splitbills.models.PayWay;
+import ir.splitwise.splitbills.models.enumeration.PayWay;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -10,7 +10,7 @@ import java.util.Date;
 @Data
 public class StatePayment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)//todo AUTO=sequence is better or identity
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     private AppUser appUser;

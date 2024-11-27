@@ -1,4 +1,4 @@
-package ir.splitwise.splitbills.entity;
+package ir.splitwise.splitbills.models.enumeration;
 
 import lombok.Getter;
 

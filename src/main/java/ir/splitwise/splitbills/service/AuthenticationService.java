@@ -1,7 +1,7 @@
 package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
-import ir.splitwise.splitbills.entity.Role;
+import ir.splitwise.splitbills.models.enumeration.Role;
 import ir.splitwise.splitbills.exceptions.DuplicateDataException;
 import ir.splitwise.splitbills.models.AuthResponse;
 import ir.splitwise.splitbills.models.LoginRequest;

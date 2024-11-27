@@ -2,7 +2,7 @@ package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.entity.ShareGroup;
-import ir.splitwise.splitbills.entity.State;
+import ir.splitwise.splitbills.models.enumeration.State;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.*;
