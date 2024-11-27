@@ -7,7 +7,10 @@ import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
-import ir.splitwise.splitbills.models.*;
+import ir.splitwise.splitbills.models.AddBillRequest;
+import ir.splitwise.splitbills.models.BaseRequest;
+import ir.splitwise.splitbills.models.ItemRequest;
+import ir.splitwise.splitbills.models.ModifyBillRequest;
 import ir.splitwise.splitbills.repository.BillRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,31 +25,28 @@ public class BillService {
     private final BillRepository billRepository;
     private final ShareGroupService shareGroupService;
     private final ExpenseService expenseService;
+    private final Gson gson;
 
     @Transactional(rollbackOn = Throwable.class)
-    public BaseRequest addBill(AddBillRequest request,AppUser appUser)
+    public BaseRequest addBill(AddBillRequest request, AppUser appUser)
             throws UserNotFoundException, ContentNotFoundException, InvalidDataException {
-        List<ItemRequest> items = request.items();
-        double totalCost = getBillTotalCost(items);
-
-        if (totalCost!= request.totalCost()){
+        //request.items() check not be null
+        var totalCost = getBillTotalCost(request.items());
+        if (totalCost != request.totalCost()) {
             throw new InvalidDataException("totalCost is not match");
         }
-
-        long groupId = request.groupId();
-        var foundGroup = shareGroupService.findGroupById(groupId);
+        var foundGroup = shareGroupService.findGroupById(request.groupId());
         var payer = userService.findUserById(request.payerId());
+
         var bill = buildBill(request, foundGroup, payer, appUser);
-
-
-
         var savedBill = billRepository.save(bill);
         expenseService.addExpense(bill, request.items());
 
-
-        double groupCost = foundGroup.getTotalCost();
+        var groupCost = foundGroup.getTotalCost();
         foundGroup.setTotalCost(totalCost + groupCost);
         shareGroupService.saveGroupInDb(foundGroup);
+
+        //todo update paymentInfo
         return new BaseRequest(savedBill.getId());//todo it is necessary?
     }
 
@@ -59,19 +59,14 @@ public class BillService {
 
         updateBillParams(request, foundBill, modifyer, payer);
         billRepository.save(foundBill);
+        var shareGroup = foundBill.getShareGroup();
 
-        List<ItemRequest> items = request.items();
-        double totalCost = getBillTotalCost(items);
-        ShareGroup shareGroup = foundBill.getShareGroup();
+        var totalCost = getBillTotalCost(request.items());
         shareGroup.setTotalCost(totalCost);
         shareGroupService.saveGroupInDb(shareGroup);
     }
 
     private static double getBillTotalCost(List<ItemRequest> items) {
-        for (ItemRequest item : items) {
-            List<UserItem> userItems = item.getUserItems();
-            List<Long> list = userItems.stream().map(UserItem::getUserId).toList();
-        }
         double totalCost = 0;
         for (ItemRequest item : items) {
             totalCost += item.getTotalCost();
@@ -79,11 +74,13 @@ public class BillService {
         return totalCost;
     }
 
-    private static void updateBillParams(ModifyBillRequest request, Bill foundBill, AppUser modifyer, AppUser payer) {
+    private void updateBillParams(ModifyBillRequest request, Bill foundBill,
+                                  AppUser modifyer, AppUser payer) {
+
         foundBill.setModifier(modifyer);
         foundBill.setPayer(payer);
         foundBill.setTitle(request.title());
-        String items = new Gson().toJson(request.items());
+        var items = gson.toJson(request.items());
         foundBill.setItems(items);//todo
     }
 
@@ -91,15 +88,15 @@ public class BillService {
         return billRepository.findById(id).orElseThrow(() -> new ContentNotFoundException("bill " + id + "not found"));
     }
 
-    private static Bill buildBill(AddBillRequest addBillRequest, ShareGroup shareGroup,
-                                  AppUser payer, AppUser creator) throws InvalidDataException {
-        Bill bill = new Bill();
+    private  Bill buildBill(AddBillRequest addBillRequest, ShareGroup shareGroup,
+                                  AppUser payer, AppUser creator) {
+        //todo user ModelMapper
+        var bill = new Bill();
         bill.setDescription(addBillRequest.description());
         bill.setTitle(addBillRequest.title());
         bill.setPayer(payer);
-        List<ItemRequest> items = addBillRequest.items();
-        bill.setItems(new Gson().toJson(items));
-        bill.setTotalCost(addBillRequest.totalCost());//todo should be validate users or sum the costs??check part cost not be more then totalCost
+        bill.setItems(gson.toJson(addBillRequest.items()));
+        bill.setTotalCost(addBillRequest.totalCost());
         bill.setCreator(creator);
         bill.setShareGroup(shareGroup);
         return bill;

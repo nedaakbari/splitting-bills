@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.config;
 
+import com.google.gson.Gson;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.zalando.logbook.Logbook;
@@ -14,5 +15,10 @@ public class AppConfig {
         return Logbook.builder()
                 .sink(new DefaultSink(new DefaultHttpLogFormatter(), new DefaultHttpLogWriter()))
                 .build();
+    }
+
+    @Bean
+    public Gson gson() {
+        return new Gson();
     }
 }
