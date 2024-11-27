@@ -8,7 +8,10 @@ import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
-import ir.splitwise.splitbills.models.*;
+import ir.splitwise.splitbills.models.AddBillRequest;
+import ir.splitwise.splitbills.models.BaseRequest;
+import ir.splitwise.splitbills.models.ItemRequest;
+import ir.splitwise.splitbills.models.ModifyBillRequest;
 import ir.splitwise.splitbills.repository.BillRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -108,8 +111,21 @@ public class BillService {
         return bill;
     }
 
+    @Transactional(rollbackOn = Throwable.class)
     public void deleteBill(long id) throws ContentNotFoundException {
         var founfBill = findBillFromDb(id);
-        billRepository.delete(founfBill);//todo it is required to keep it for history? i dont think so
+        var deletedBillCost = founfBill.getTotalCost();
+        billRepository.delete(founfBill);
+
+        var shareGroup = updateShareGroupTotalCost(founfBill, deletedBillCost);
+        shareGroupService.saveGroupInDb(shareGroup);
+    }
+
+    private static ShareGroup updateShareGroupTotalCost(Bill founfBill, double deletedBillCost) {
+        var shareGroup = founfBill.getShareGroup();
+        double shareGroupTotalCost = shareGroup.getTotalCost();
+        shareGroupTotalCost -= deletedBillCost;
+        shareGroup.setTotalCost(shareGroupTotalCost);
+        return shareGroup;
     }
 }
