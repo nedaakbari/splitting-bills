@@ -96,6 +96,7 @@ public class PaymentInfoService {
     }
 
     public List<PaymentResponse> getPayInfoOfUser(long groupId, AppUser requester) {
+        //calculate first
         List<PaymentInfo> allByIdAndShareGroup = paymentInfoRepository.findAllByIdAndShareGroup(requester.getId(), groupId);
         return getPaymentResponses(allByIdAndShareGroup);
     }
