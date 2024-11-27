@@ -29,10 +29,7 @@ public class PaymentInfoService {
         var foundGroup = shareGroupService.findGroupById(shareGroupId);
         List<PaymentInfo> payInfoOfGroup = getPayInfoOfGroup(foundGroup);
 
-        return payInfoOfGroup.stream().map(paymentInfo ->//todo fix the load of all info
-                new PaymentResponse(new AppUserResponse(paymentInfo.getPayer().getUsername()),
-                        new AppUserResponse(paymentInfo.getReceiver().getUsername())
-                        , paymentInfo.getAmount())).collect(Collectors.toList());
+        return getPaymentResponses(payInfoOfGroup);
     }
 
     public List<PaymentInfo> getPayInfoOfGroup(ShareGroup shareGroup) throws ContentNotFoundException {
@@ -53,7 +50,7 @@ public class PaymentInfoService {
         recivers.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
 
         var paymentInfoList = processPayment(shareGroup, deptors, recivers);
-        paymentInfoRepository.saveAll(paymentInfoList);//todo active batch
+        paymentInfoRepository.saveAll(paymentInfoList);//todo active batch in application
         return paymentInfoList;
     }
 
@@ -98,11 +95,16 @@ public class PaymentInfoService {
         return paymentInfo;
     }
 
-    public List<PaymentResponse> getPayInfoOfUser(long groupId, AppUser requester) throws ContentNotFoundException {
-        //pay to who
-        //receive from who
-        //just for him
-        return null;
+    public List<PaymentResponse> getPayInfoOfUser(long groupId, AppUser requester) {
+        List<PaymentInfo> allByIdAndShareGroup = paymentInfoRepository.findAllByIdAndShareGroup(requester.getId(), groupId);
+        return getPaymentResponses(allByIdAndShareGroup);
+    }
+
+    private static List<PaymentResponse> getPaymentResponses(List<PaymentInfo> payInfoOfGroup) {
+        return payInfoOfGroup.stream().map(paymentInfo ->//todo fix the load of all info
+                new PaymentResponse(new AppUserResponse(paymentInfo.getPayer().getUsername()),
+                        new AppUserResponse(paymentInfo.getReceiver().getUsername())
+                        , paymentInfo.getAmount())).collect(Collectors.toList());
     }
 
 }
