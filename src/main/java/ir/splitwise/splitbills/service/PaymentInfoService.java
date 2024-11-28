@@ -34,7 +34,7 @@ public class PaymentInfoService {
     private final UserService userService;
     private final BillRepository billRepository;
     private final Gson gson;
-    Type itemList = new TypeToken<List<ItemRequest>>() {
+    private static final Type itemList = new TypeToken<List<ItemRequest>>() {
     }.getType();
 
     @Transactional(rollbackFor = Throwable.class)
@@ -48,7 +48,7 @@ public class PaymentInfoService {
             var paymentInfo = processPayInfo(list, foundGroup, bill);
             paymentInfoList.addAll(paymentInfo);
         }
-
+        paymentInfoRepository.deleteAllByBillIds(billListOfAGroup.stream().map(Bill::getId).toList());
         var savedPayment = paymentInfoRepository.saveAll(paymentInfoList);
         return savedPayment.stream().map(x -> new PaymentResponse(new AppUserResponse(x.getPayer().getUsername()),
                 new AppUserResponse(x.getReceiver().getUsername()), x.getAmount())).toList();
@@ -58,7 +58,7 @@ public class PaymentInfoService {
     private List<ExpenseDto> getExpenseDtoList(Bill bill) throws UserNotFoundException {
         List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
         var expenses = addExpense(bill, itemRequest);
-        return  expenses.stream()
+        return expenses.stream()
                 .map(expense -> new ExpenseDto(expense.getAppUser(), expense.getBill(), expense.getShareAmount()))
                 .toList();
     }
@@ -85,6 +85,7 @@ public class PaymentInfoService {
     }
 
     public List<Expense> addExpense(Bill bill, List<ItemRequest> itemRequestList) throws UserNotFoundException {
+        expenseRepository.deleteAllByBillId(bill.getId());
         List<Expense> expenseList = new ArrayList<>();
         for (var itemRequest : itemRequestList) {
             var totalCost = itemRequest.getTotalCost();
