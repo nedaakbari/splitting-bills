@@ -122,8 +122,8 @@ public class PaymentInfoService {
 
     public List<PaymentResponse> getPayInfoOfUser(PaymentRequest request, AppUser requester) {
         var allByIdAndShareGroup = request.dept() ?
-                paymentInfoRepository.findAllUserRecivePaymentInfo(requester.getId(), request.groupId())
-                : paymentInfoRepository.findAllUserDeptPaymentInfo(requester.getId(), request.groupId());
+                paymentInfoRepository.findAllUserDeptPaymentInfo(requester.getId(), request.groupId())
+                : paymentInfoRepository.findAllUserRecivePaymentInfo(requester.getId(), request.groupId());
         return getPaymentResponses(allByIdAndShareGroup);
     }
 

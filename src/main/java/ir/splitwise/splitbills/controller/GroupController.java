@@ -33,7 +33,7 @@ public class GroupController {
     @PostMapping("/modify")
     @Operation(description = "this api used for modify a group that already added ")
     public void modifyGroup(@RequestBody ModifySharedGroupRequest request, Authentication authentication)
-            throws Exception {//delete and modify possible fields
+            throws Exception {
 
         AppUser appUser = CheckAppUser.checkUserInstance(authentication);
         shareGroupService.modifyShareGroup(request, appUser);
@@ -50,19 +50,18 @@ public class GroupController {
 
     @Operation(description = "this api shows all groups the user is member of")
     @GetMapping("/get-all")
-    public List<ShareGroupResponse> getAllGroupOfUser(Authentication authentication) throws UserNotFoundException {
-        AppUser appUser = CheckAppUser.checkUserInstance(authentication);
+    public List<ShareGroupResponse> getAllGroupOfUser(Authentication authentication)
+            throws UserNotFoundException {
+
+        var appUser = CheckAppUser.checkUserInstance(authentication);
         return shareGroupService.getAllGroupOfAUser(appUser);
     }
 
     @GetMapping("/get-all-active")
-    public List<ActiveShareGroupResponse> getAllActiveGroupOfUser(Authentication authentication) throws UserNotFoundException {
-        AppUser appUser = CheckAppUser.checkUserInstance(authentication);
+    public List<ActiveShareGroupResponse> getAllActiveGroupOfUser(Authentication authentication)
+            throws UserNotFoundException {
+
+        var appUser = CheckAppUser.checkUserInstance(authentication);
         return shareGroupService.getAllActiveGroupOfAUser(appUser);
     }
-
-//    @GetMapping("/get-all-in-progress")
-//    public List<ActiveShareGroupResponse> getAllInProgressGroupOfUser() throws UserNotFoundException {
-//        return shareGroupService.getAllActiveGroupOfAUser();
-//    }
 }
