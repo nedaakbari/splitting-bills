@@ -1,16 +1,23 @@
 package ir.splitwise.splitbills.service;
 
-import ir.splitwise.splitbills.entity.AppUser;
-import ir.splitwise.splitbills.entity.PaymentInfo;
-import ir.splitwise.splitbills.entity.ShareGroup;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import ir.splitwise.splitbills.entity.*;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
+import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.AppUserResponse;
+import ir.splitwise.splitbills.models.ItemRequest;
 import ir.splitwise.splitbills.models.PaymentResponse;
+import ir.splitwise.splitbills.models.UserItem;
 import ir.splitwise.splitbills.repository.PaymentInfoRepository;
-import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -21,83 +28,94 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PaymentInfoService {
     private final ExpenseService expenseService;
+    private final BillService billService;
     private final PaymentInfoRepository paymentInfoRepository;
     private final ShareGroupService shareGroupService;
+    private final Gson gson;
+    private static final Type itemList = new TypeToken<List<ItemRequest>>() {
+    }.getType();
 
-    @Transactional
-    public List<PaymentResponse> getPayInfoOfGroup(long shareGroupId) throws ContentNotFoundException {
-        var foundGroup = shareGroupService.findGroupById(shareGroupId);
-        List<PaymentInfo> payInfoOfGroup = getPayInfoOfGroup(foundGroup);
+    @Transactional(rollbackFor = Throwable.class)
+    public List<PaymentResponse> getPayInfoOfGroup(long groupId) throws ContentNotFoundException, UserNotFoundException {
 
-        return getPaymentResponses(payInfoOfGroup);
+        ShareGroup foundGroup = shareGroupService.findGroupById(groupId);
+        List<Bill> billListOfAGroup = billService.findAllBillOfGroup(groupId);
+
+        List<PaymentInfo> paymentInfoList = new ArrayList<>();
+        for (Bill bill : billListOfAGroup) {
+            var list = getExpenseDtoList(bill);
+            var paymentInfo = processForPayment(list, foundGroup, bill);
+            paymentInfoList.addAll(paymentInfo);
+        }
+        paymentInfoRepository.deleteAllByBillIds(billListOfAGroup.stream().map(Bill::getId).toList());
+        var savedPayment = paymentInfoRepository.saveAll(paymentInfoList);
+        return savedPayment.stream().map(x -> new PaymentResponse(new AppUserResponse(x.getPayer().getUsername()),
+                new AppUserResponse(x.getReceiver().getUsername()), x.getAmount())).toList();
+
     }
 
-    public List<PaymentInfo> getPayInfoOfGroup(ShareGroup shareGroup) throws ContentNotFoundException {
-        var deptOfGroup = expenseService.getALlDeptOfGroup(shareGroup.getId());
-        List<Map.Entry<AppUser, Double>> deptors = new ArrayList<>();
-        List<Map.Entry<AppUser, Double>> recivers = new ArrayList<>();
-
-        for (var appUserDoubleEntry : deptOfGroup.entrySet()) {
-            var dept = appUserDoubleEntry.getValue();
-
-            if (dept < 0) {
-                deptors.add(appUserDoubleEntry);
+    @Transactional(readOnly = true)
+    List<PaymentInfo> processForPayment(List<ExpenseDto> expenses, ShareGroup shareGroup, Bill bill) {
+        List<ExpenseDto> payer = new ArrayList<>();
+        List<ExpenseDto> recivers = new ArrayList<>();
+        for (ExpenseDto expens : expenses) {
+            if (expens.getShareAmount() < 0) {
+                payer.add(expens);
             } else {
-                recivers.add(appUserDoubleEntry);
+                recivers.add(expens);
             }
         }
-        deptors.sort(Comparator.comparingDouble(Map.Entry::getValue));
-        recivers.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
 
-        var paymentInfoList = processPayment(shareGroup, deptors, recivers);
-        paymentInfoRepository.saveAll(paymentInfoList);//todo active batch in application
-        return paymentInfoList;
+        payer.sort(Comparator.comparingDouble(ExpenseDto::getShareAmount));
+        recivers.sort(Comparator.comparingDouble(ExpenseDto::getShareAmount));
+        recivers.reversed();
+
+        return processForPayment(shareGroup, bill, payer, recivers);
     }
 
-    private List<PaymentInfo> processPayment(ShareGroup shareGroup, List<Map.Entry<AppUser, Double>> deptors, List<Map.Entry<AppUser, Double>> recivers) {
+    private static List<PaymentInfo> processForPayment(ShareGroup shareGroup, Bill bill,
+                                                       List<ExpenseDto> deptors, List<ExpenseDto> recivers) {
 
         List<PaymentInfo> paymentInfoList = new ArrayList<>();
         int i = 0, j = 0;
         while (i < deptors.size() && j < recivers.size()) {
             var depter = deptors.get(i);
-            var depterCost = depter.getValue();
+            var depterCost = depter.getShareAmount();
 
             var reciver = recivers.get(j);
-            var reciverCost = reciver.getValue();
+            var reciverCost = reciver.getShareAmount();
 
             var costToPay = Math.min(-depterCost, reciverCost);
-            var paymentInfo = buildPaymentInfo(depter, reciver, shareGroup, costToPay);
+
+            var paymentInfo = buildPaymentInfo(shareGroup, bill, depter, reciver, costToPay);
             paymentInfoList.add(paymentInfo);
 
-            deptors.get(i).setValue(depterCost + costToPay);
-            recivers.get(i).setValue(reciverCost - costToPay);
+            deptors.get(i).setShareAmount(depterCost + costToPay);
+            recivers.get(j).setShareAmount(reciverCost - costToPay);
 
-            if (deptors.get(i).getValue() == 0) {
+            if (deptors.get(i).getShareAmount() == 0) {
                 i++;
             }
-            if (recivers.get(j).getValue() == 0) {
+            if (recivers.get(j).getShareAmount() == 0) {
                 j++;
             }
         }
         return paymentInfoList;
     }
 
-    private static PaymentInfo buildPaymentInfo(Map.Entry<AppUser, Double> depter,
-                                                Map.Entry<AppUser, Double> reciver,
-                                                ShareGroup shareGroup,
-                                                double costToPay
-    ) {
+    private static PaymentInfo buildPaymentInfo(ShareGroup shareGroup, Bill bill,
+                                                ExpenseDto depter, ExpenseDto reciver, double costToPay) {
         PaymentInfo paymentInfo = new PaymentInfo();
-        paymentInfo.setPayer(depter.getKey());
-        paymentInfo.setReceiver(reciver.getKey());
+        paymentInfo.setPayer(depter.getAppUser());
+        paymentInfo.setReceiver(reciver.getAppUser());
         paymentInfo.setShareGroup(shareGroup);
         paymentInfo.setAmount(costToPay);
+        paymentInfo.setBill(bill);
         return paymentInfo;
     }
 
     public List<PaymentResponse> getPayInfoOfUser(long groupId, AppUser requester) {
-        //calculate first
-        List<PaymentInfo> allByIdAndShareGroup = paymentInfoRepository.findAllByIdAndShareGroup(requester.getId(), groupId);
+        var allByIdAndShareGroup = paymentInfoRepository.findAllByIdAndShareGroup(requester.getId(), groupId);
         return getPaymentResponses(allByIdAndShareGroup);
     }
 
@@ -108,4 +126,20 @@ public class PaymentInfoService {
                         , paymentInfo.getAmount())).collect(Collectors.toList());
     }
 
+private List<ExpenseDto> getExpenseDtoList(Bill bill) throws UserNotFoundException {
+    List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
+    var expenses = expenseService.addExpense(bill, itemRequest);
+    return expenses.stream()
+            .map(expense -> new ExpenseDto(expense.getAppUser(), expense.getBill(), expense.getShareAmount()))
+            .toList();
+}
+
+    @Getter
+    @AllArgsConstructor
+    private class ExpenseDto {
+        private AppUser appUser;
+        private Bill bill;
+        @Setter
+        private double shareAmount;
+    }
 }

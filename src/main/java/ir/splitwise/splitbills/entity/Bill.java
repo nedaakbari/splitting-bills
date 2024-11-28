@@ -15,20 +15,19 @@ public class Bill extends BaseEntity {
     private String title;
     private String description;
     private double totalCost;
+
     @ManyToOne
     private AppUser payer;
+
     @Column(columnDefinition = "TEXT")
     private String items;
 
-    @ManyToOne//todo can not modify
+    @ManyToOne
     private AppUser creator;
+
     @ManyToOne
     private AppUser modifier;
 
-    @ManyToOne
-    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
     private ShareGroup shareGroup;
-
-    @OneToMany(mappedBy = "bill",cascade = CascadeType.ALL)
-    private List<Expense> expensesList;
 }

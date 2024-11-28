@@ -13,4 +13,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     @Query("from  Expense  e where e.bill.id =:billId ")
     List<Expense> finaAllByBillId(long billId);
+
+    void deleteAllByBillId(long billId);
+
 }

@@ -2,14 +2,15 @@ package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.entity.ShareGroup;
-import ir.splitwise.splitbills.models.enumeration.State;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.*;
+import ir.splitwise.splitbills.models.enumeration.State;
 import ir.splitwise.splitbills.repository.ShareGroupRepository;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class ShareGroupService {
     private final ShareGroupRepository shareGroupRepository;
     private final UserService userService;
 
-    @Transactional(rollbackOn = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class)
     public BaseRequest addShareGroup(ShareGroupRequest shareGroupRequest, AppUser owner) throws UserNotFoundException {
 
         List<Long> userIds = shareGroupRequest.userIds();
@@ -75,10 +76,15 @@ public class ShareGroupService {
                 .orElseThrow(() -> new ContentNotFoundException("group " + id + "not found"));
     }
 
+    public ShareGroup findGroupByUserAndGroupId(long groupId, long userId) throws ContentNotFoundException {
+        return shareGroupRepository.findGroupByUserAndGroupId(groupId, userId)
+                .orElseThrow(() -> new ContentNotFoundException("the user:" + userId + " have no group with id: " + groupId));
+    }
+
     public void deleteAGroup(long id) throws ContentNotFoundException {
         ShareGroup foundGroup = findGroupById(id);
-//        foundGroup.setState(State.DELETE);
         shareGroupRepository.delete(foundGroup);
+        //delete alla relative tables?
     }
 
     public ShareGroup saveGroupInDb(ShareGroup group) {

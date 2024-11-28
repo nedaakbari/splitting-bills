@@ -69,7 +69,7 @@ public class AuthenticationService {
                 .secure(false)
                 .path("/")
                 .maxAge(maxAgeSeconds)
-//                .sameSite("Strict")
+                .sameSite("Strict")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }

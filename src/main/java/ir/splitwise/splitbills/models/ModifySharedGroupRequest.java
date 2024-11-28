@@ -1,4 +1,4 @@
-package ir.splitwise.splitbills.service;
+package ir.splitwise.splitbills.models;
 
 import java.util.Set;
 

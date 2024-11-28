@@ -18,24 +18,16 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @Table(indexes = @Index(name = "app_user_index", columnList = "email"))
-public class AppUser extends BaseEntity implements UserDetails {//todo what happen if i want to add someOne is not in app
+public class AppUser extends BaseEntity implements UserDetails {
     private String firstname;
     private String lastName;
     private String email;
-
-    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<ShareGroup> groupIds;
-
-    @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<Expense> expenses;
-
     @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
 
     @Builder
     public AppUser(String firstname, String lastName, String email,

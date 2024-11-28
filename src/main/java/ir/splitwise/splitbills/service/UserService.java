@@ -42,6 +42,4 @@ public class UserService {
     public void saveUsers(List<AppUser> appUserList) {
         userRepository.saveAll(appUserList);//todo batch?
     }
-
-
 }

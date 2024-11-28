@@ -29,14 +29,14 @@ public class PaymentInfoController {
     @Operation(description = "this api used for calculating expense and show who should pay to another one in group")
     @PostMapping("/get-all-for-group")
     public List<PaymentResponse> getAllPaymentInfo(@RequestBody BaseRequest request)//PaymentResponse
-            throws ContentNotFoundException {
+            throws ContentNotFoundException, UserNotFoundException {
 
         return paymentInfoService.getPayInfoOfGroup(request.id());
     }
 
     @Operation(description = "this api used for calculating expense of a user")
     @PostMapping("/get-all-for-user")
-    @PreAuthorize("@customSecurityService.canAccessUserExpenseInfo(authentication, #request.id())")
+//    @PreAuthorize("@customSecurityService.canAccessUserExpenseInfo(authentication, #request.id())")
     public List<PaymentResponse> getAllPaymentInfoOfUser(@RequestBody BaseRequest request, Authentication authentication)
             throws UserNotFoundException {
 
