@@ -27,6 +27,9 @@ public class PaymentInfo {
     @ManyToOne
     private ShareGroup shareGroup;
 
+    @ManyToOne
+    private Bill bill;
+
     private PayWay payWay;
     private Date payDate;
     private boolean isPaid;

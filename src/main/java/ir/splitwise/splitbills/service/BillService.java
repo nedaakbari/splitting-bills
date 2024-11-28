@@ -45,28 +45,31 @@ public class BillService {
         shareGroupService.saveGroupInDb(foundGroup);
 
         List<Expense> expenses = addExpense(bill, request.items());
-        List<PaymentInfo> pay = pay(expenses, foundGroup, bill);
+        List<PaymentInfo> pay = processPayInfo(expenses, foundGroup, bill);
         paymentInfoRepository.saveAll(pay);
         return new BaseRequest(savedBill.getId());//todo it is necessary?
     }
 
 
-    List<PaymentInfo> pay(List<Expense> expenses, ShareGroup shareGroup, Bill bill) {
-        List<Expense> deptors = new ArrayList<>();
+    List<PaymentInfo> processPayInfo(List<Expense> expenses, ShareGroup shareGroup, Bill bill) {
+        List<Expense> payer = new ArrayList<>();
         List<Expense> recivers = new ArrayList<>();
         for (Expense expens : expenses) {
             if (expens.getShareAmount() < 0) {
-                deptors.add(expens);
+                payer.add(expens);
             } else {
                 recivers.add(expens);
             }
         }
 
-        deptors.sort(Comparator.comparingDouble(Expense::getShareAmount));
+        payer.sort(Comparator.comparingDouble(Expense::getShareAmount));
         recivers.sort(Comparator.comparingDouble(Expense::getShareAmount));
-        List<Expense> reversed = recivers.reversed();
+        recivers.reversed();
 
+        return processForPayment(shareGroup, bill, payer, recivers);
+    }
 
+    private static List<PaymentInfo> processForPayment(ShareGroup shareGroup, Bill bill, List<Expense> deptors, List<Expense> recivers) {
         List<PaymentInfo> paymentInfoList = new ArrayList<>();
         int i = 0, j = 0;
         while (i < deptors.size() && j < recivers.size()) {
@@ -78,12 +81,7 @@ public class BillService {
 
             var costToPay = Math.min(-depterCost, reciverCost);
 
-            PaymentInfo paymentInfo = new PaymentInfo();
-            paymentInfo.setPayer(depter.getAppUser());
-            paymentInfo.setReceiver(reciver.getAppUser());
-            paymentInfo.setShareGroup(shareGroup);
-            paymentInfo.setAmount(costToPay);
-
+            var paymentInfo = buildPaymentInfo(shareGroup, bill, depter, reciver, costToPay);
             paymentInfoList.add(paymentInfo);
 
             deptors.get(i).setShareAmount(depterCost + costToPay);
@@ -97,7 +95,17 @@ public class BillService {
             }
         }
         return paymentInfoList;
+    }
 
+    private static PaymentInfo buildPaymentInfo(ShareGroup shareGroup, Bill bill,
+                                                Expense depter, Expense reciver, double costToPay) {
+        PaymentInfo paymentInfo = new PaymentInfo();
+        paymentInfo.setPayer(depter.getAppUser());
+        paymentInfo.setReceiver(reciver.getAppUser());
+        paymentInfo.setShareGroup(shareGroup);
+        paymentInfo.setAmount(costToPay);
+        paymentInfo.setBill(bill);
+        return paymentInfo;
     }
 
     @Transactional(rollbackOn = Throwable.class)
