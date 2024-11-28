@@ -30,7 +30,6 @@ public class AppUser extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-
     @Builder
     public AppUser(String firstname, String lastName, String email,
                    String password, Role role) {

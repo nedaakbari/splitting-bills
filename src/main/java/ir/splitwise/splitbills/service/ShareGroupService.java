@@ -23,7 +23,7 @@ public class ShareGroupService {
     private final UserService userService;
 
     @Transactional(rollbackFor = Throwable.class)
-    public BaseRequest addShareGroup(ShareGroupRequest shareGroupRequest, AppUser owner) throws UserNotFoundException {
+    public BaseRequestResponse addShareGroup(ShareGroupRequest shareGroupRequest, AppUser owner) throws UserNotFoundException {
 
         List<Long> userIds = shareGroupRequest.userIds();
         List<AppUser> groupMembers = userService.findAllUserById(userIds);
@@ -40,7 +40,7 @@ public class ShareGroupService {
 
         userService.saveUsers(groupMembers);*/
 
-        return new BaseRequest(savedGroupInDb.getId());
+        return new BaseRequestResponse(savedGroupInDb.getId());
     }
 
     private static ShareGroup buildGroup(ShareGroupRequest shareGroupRequest,

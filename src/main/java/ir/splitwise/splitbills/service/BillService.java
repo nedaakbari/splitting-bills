@@ -8,7 +8,7 @@ import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.AddBillRequest;
-import ir.splitwise.splitbills.models.BaseRequest;
+import ir.splitwise.splitbills.models.BaseRequestResponse;
 import ir.splitwise.splitbills.models.ItemRequest;
 import ir.splitwise.splitbills.models.ModifyBillRequest;
 import ir.splitwise.splitbills.repository.BillRepository;
@@ -27,7 +27,7 @@ public class BillService {
     private final Gson gson;
 
     @Transactional(rollbackFor = Throwable.class)
-    public BaseRequest addBill(AddBillRequest request, AppUser appUser)
+    public BaseRequestResponse addBill(AddBillRequest request, AppUser appUser)
             throws UserNotFoundException, ContentNotFoundException, InvalidDataException {
         //request.items() check not be null
         var totalCost = getBillTotalCost(request.items());
@@ -47,7 +47,7 @@ public class BillService {
 //        List<Expense> expenses = addExpense(bill, request.items());
 //        List<PaymentInfo> pay = processPayInfo(expenses, foundGroup, bill);
 //        paymentInfoRepository.saveAll(pay);
-        return new BaseRequest(savedBill.getId());
+        return new BaseRequestResponse(savedBill.getId());
     }
 
 

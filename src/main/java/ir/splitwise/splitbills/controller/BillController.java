@@ -7,7 +7,7 @@ import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.AddBillRequest;
-import ir.splitwise.splitbills.models.BaseRequest;
+import ir.splitwise.splitbills.models.BaseRequestResponse;
 import ir.splitwise.splitbills.models.ModifyBillRequest;
 import ir.splitwise.splitbills.service.BillService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class BillController {
 
     @PostMapping("/add")
     @Operation(summary = "addBillToAGroup", description = "this api used for adding a bill to a group")
-    public BaseRequest addBillToAGroup(@RequestBody AddBillRequest addBillRequest, Authentication authentication)
+    public BaseRequestResponse addBillToAGroup(@RequestBody AddBillRequest addBillRequest, Authentication authentication)
             throws UserNotFoundException, ContentNotFoundException, InvalidDataException {
 
         var appUser = CheckAppUser.checkUserInstance(authentication);
@@ -43,9 +43,9 @@ public class BillController {
 
     @PostMapping("/delete")
     @Operation(description = "this api used for delete a bill that already added to a group")
-    public void deleteBill(@RequestBody BaseRequest baseRequest)
+    public void deleteBill(@RequestBody BaseRequestResponse baseRequestResponse)
             throws ContentNotFoundException {
 
-        billService.deleteBill(baseRequest.id());
+        billService.deleteBill(baseRequestResponse.id());
     }
 }

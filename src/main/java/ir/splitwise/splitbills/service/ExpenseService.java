@@ -44,16 +44,16 @@ public class ExpenseService {
             throws UserNotFoundException {
 
         double sharedCount = totalCost / userItems.size();
-        List<Long> list = userItems.stream().map(UserItem::getUserId).toList();//todo set?
-        List<AppUser> allUserById = userService.findAllUserById(list);
+        List<Long> userIdList = userItems.stream().map(UserItem::userId).toList();//todo set?
+        List<AppUser> allUserById = userService.findAllUserById(userIdList);
         return allUserById.stream().map(user -> new Expense(user, bill, -sharedCount)).toList();
     }
 
 
     private Expense getPairExpense(Bill bill, UserItem userItem,
                                    double totalCost, int itemTotalCount) throws UserNotFoundException {
-        int count = userItem.getCount();
-        long userId = userItem.getUserId();
+        int count = userItem.count();
+        long userId = userItem.userId();
         AppUser userById = userService.findUserById(userId);
         Expense expense = new Expense();
         expense.setAppUser(userById);

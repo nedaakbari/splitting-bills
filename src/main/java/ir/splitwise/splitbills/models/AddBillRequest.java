@@ -7,5 +7,5 @@ public record AddBillRequest(long groupId,
                              String description,
                              double totalCost,
                              long payerId,
-                             List<ItemRequest> items) {//todo what can i do for this
+                             List<ItemRequest> items) {
 }

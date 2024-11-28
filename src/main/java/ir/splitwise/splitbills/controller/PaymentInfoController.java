@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.splitwise.splitbills.CheckAppUser;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
-import ir.splitwise.splitbills.models.BaseRequest;
+import ir.splitwise.splitbills.models.BaseRequestResponse;
 import ir.splitwise.splitbills.models.PaymentRequest;
 import ir.splitwise.splitbills.models.PaymentResponse;
 import ir.splitwise.splitbills.service.PaymentInfoService;
@@ -27,7 +27,7 @@ public class PaymentInfoController {
 
     @Operation(description = "this api used for calculating expense and show who should pay to another one in group")
     @PostMapping("/get-all-for-group")
-    public List<PaymentResponse> getAllPaymentInfo(@RequestBody BaseRequest request)//PaymentResponse
+    public List<PaymentResponse> getAllPaymentInfo(@RequestBody BaseRequestResponse request)
             throws ContentNotFoundException, UserNotFoundException {
 
         return paymentInfoService.getPayInfoOfGroup(request.id());
@@ -35,7 +35,6 @@ public class PaymentInfoController {
 
     @Operation(description = "this api used for calculating expense of a user")
     @PostMapping("/get-all-for-user")
-//    @PreAuthorize("@customSecurityService.canAccessUserExpenseInfo(authentication, #request.id())")
     public List<PaymentResponse> getAllPaymentInfoOfUser(@RequestBody PaymentRequest request, Authentication authentication)
             throws UserNotFoundException {
 

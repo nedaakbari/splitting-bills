@@ -23,7 +23,7 @@ public class GroupController {
 
     @PostMapping("/add")
     @Operation(description = "this api used for build a new group,it has a justOwnerModify that if be true just the creator can add or modify the group and it's bills")
-    public BaseRequest addGroup(@RequestBody ShareGroupRequest request, Authentication authentication)
+    public BaseRequestResponse addGroup(@RequestBody ShareGroupRequest request, Authentication authentication)
             throws UserNotFoundException {
 
         AppUser appUser = CheckAppUser.checkUserInstance(authentication);
@@ -41,7 +41,7 @@ public class GroupController {
 
     @Operation(description = "this api used for delete a group that already added")
     @PostMapping("/delete")
-    public void deleteGroup(@RequestBody BaseRequest request)
+    public void deleteGroup(@RequestBody BaseRequestResponse request)
             throws ContentNotFoundException {
 
         shareGroupService.deleteAGroup(request.id());
