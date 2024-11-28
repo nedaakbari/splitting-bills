@@ -3,14 +3,15 @@ package ir.splitwise.splitbills.entity;
 import ir.splitwise.splitbills.models.GroupMode;
 import ir.splitwise.splitbills.models.enumeration.State;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ShareGroup extends BaseEntity {
 
     @ManyToOne
@@ -26,4 +27,16 @@ public class ShareGroup extends BaseEntity {
     private double totalCost;
     private String description;
     private State state;
+
+    @Builder
+    public ShareGroup(AppUser owner,
+                      List<AppUser> members,
+                      GroupMode groupMode,
+                      String title, String description) {
+        this.owner = owner;
+        this.members = members;
+        this.groupMode = groupMode;
+        this.title = title;
+        this.description = description;
+    }
 }
