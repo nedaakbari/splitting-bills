@@ -34,13 +34,13 @@ public class PaymentInfoController {
         return paymentInfoService.getPayInfoOfGroup(request.id());
     }
 
-//    @Operation(description = "this api used for calculating expense of a user")
-//    @PostMapping("/get-all-for-user")
+    @Operation(description = "this api used for calculating expense of a user")
+    @PostMapping("/get-all-for-user")
 //    @PreAuthorize("@customSecurityService.canAccessUserExpenseInfo(authentication, #request.id())")
-//    public List<PaymentResponse> getAllPaymentInfoOfUser(@RequestBody BaseRequest request, Authentication authentication)
-//            throws UserNotFoundException {
-//
-//        var appUser = CheckAppUser.checkUserInstance(authentication);
-//        return paymentInfoService.getPayInfoOfUser(request.id(), appUser);
-//    }
+    public List<PaymentResponse> getAllPaymentInfoOfUser(@RequestBody BaseRequest request, Authentication authentication)
+            throws UserNotFoundException {
+
+        var appUser = CheckAppUser.checkUserInstance(authentication);
+        return paymentInfoService.getPayInfoOfUser(request.id(), appUser);
+    }
 }

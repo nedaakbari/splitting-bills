@@ -9,8 +9,6 @@ import ir.splitwise.splitbills.models.AppUserResponse;
 import ir.splitwise.splitbills.models.ItemRequest;
 import ir.splitwise.splitbills.models.PaymentResponse;
 import ir.splitwise.splitbills.models.UserItem;
-import ir.splitwise.splitbills.repository.BillRepository;
-import ir.splitwise.splitbills.repository.ExpenseRepository;
 import ir.splitwise.splitbills.repository.PaymentInfoRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,29 +21,30 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentInfoService {
     private final ExpenseService expenseService;
-    private final ExpenseRepository expenseRepository;
+    private final BillService billService;
     private final PaymentInfoRepository paymentInfoRepository;
     private final ShareGroupService shareGroupService;
-    private final UserService userService;
-    private final BillRepository billRepository;
     private final Gson gson;
     private static final Type itemList = new TypeToken<List<ItemRequest>>() {
     }.getType();
 
     @Transactional(rollbackFor = Throwable.class)
     public List<PaymentResponse> getPayInfoOfGroup(long groupId) throws ContentNotFoundException, UserNotFoundException {
+
         ShareGroup foundGroup = shareGroupService.findGroupById(groupId);
-        List<Bill> billListOfAGroup = billRepository.findAllByGroupId(groupId);
+        List<Bill> billListOfAGroup = billService.findAllBillOfGroup(groupId);
 
         List<PaymentInfo> paymentInfoList = new ArrayList<>();
         for (Bill bill : billListOfAGroup) {
             var list = getExpenseDtoList(bill);
-            var paymentInfo = processPayInfo(list, foundGroup, bill);
+            var paymentInfo = processForPayment(list, foundGroup, bill);
             paymentInfoList.addAll(paymentInfo);
         }
         paymentInfoRepository.deleteAllByBillIds(billListOfAGroup.stream().map(Bill::getId).toList());
@@ -55,57 +54,8 @@ public class PaymentInfoService {
 
     }
 
-    private List<ExpenseDto> getExpenseDtoList(Bill bill) throws UserNotFoundException {
-        List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
-        var expenses = addExpense(bill, itemRequest);
-        return expenses.stream()
-                .map(expense -> new ExpenseDto(expense.getAppUser(), expense.getBill(), expense.getShareAmount()))
-                .toList();
-    }
-
-    private Expense getPairExpense(Bill bill, UserItem userItem,
-                                   double totalCost, int itemTotalCount) throws UserNotFoundException {
-        int count = userItem.getCount();
-        long userId = userItem.getUserId();
-        AppUser userById = userService.findUserById(userId);
-        Expense expense = new Expense();
-        expense.setAppUser(userById);
-        expense.setShareAmount(-(totalCost / itemTotalCount) * count);
-        expense.setBill(bill);
-        return expense;
-    }
-
-    private List<Expense> getEqualExpense(Bill bill, double totalCost, List<UserItem> userItems)
-            throws UserNotFoundException {
-
-        double sharedCount = totalCost / userItems.size();
-        List<Long> list = userItems.stream().map(UserItem::getUserId).toList();//todo set?
-        List<AppUser> allUserById = userService.findAllUserById(list);
-        return allUserById.stream().map(user -> new Expense(user, bill, -sharedCount)).toList();
-    }
-
-    public List<Expense> addExpense(Bill bill, List<ItemRequest> itemRequestList) throws UserNotFoundException {
-        expenseRepository.deleteAllByBillId(bill.getId());
-        List<Expense> expenseList = new ArrayList<>();
-        for (var itemRequest : itemRequestList) {
-            var totalCost = itemRequest.getTotalCost();
-            var itemTotalCount = itemRequest.getCount();
-            var userItems = itemRequest.getUserItems();
-            var equalShare = itemRequest.isEqualShare();
-            if (equalShare) {
-                expenseList.addAll(getEqualExpense(bill, totalCost, userItems));
-            } else {
-                for (UserItem userItem : userItems) {
-                    expenseList.add(getPairExpense(bill, userItem, totalCost, itemTotalCount));
-                }
-            }
-        }
-        expenseList.add(new Expense(bill.getPayer(), bill, bill.getTotalCost()));
-        return expenseRepository.saveAll(expenseList);
-    }
-
     @Transactional(readOnly = true)
-    List<PaymentInfo> processPayInfo(List<ExpenseDto> expenses, ShareGroup shareGroup, Bill bill) {
+    List<PaymentInfo> processForPayment(List<ExpenseDto> expenses, ShareGroup shareGroup, Bill bill) {
         List<ExpenseDto> payer = new ArrayList<>();
         List<ExpenseDto> recivers = new ArrayList<>();
         for (ExpenseDto expens : expenses) {
@@ -163,6 +113,26 @@ public class PaymentInfoService {
         paymentInfo.setBill(bill);
         return paymentInfo;
     }
+
+    public List<PaymentResponse> getPayInfoOfUser(long groupId, AppUser requester) {
+        var allByIdAndShareGroup = paymentInfoRepository.findAllByIdAndShareGroup(requester.getId(), groupId);
+        return getPaymentResponses(allByIdAndShareGroup);
+    }
+
+    private static List<PaymentResponse> getPaymentResponses(List<PaymentInfo> payInfoOfGroup) {
+        return payInfoOfGroup.stream().map(paymentInfo ->//todo fix the load of all info
+                new PaymentResponse(new AppUserResponse(paymentInfo.getPayer().getUsername()),
+                        new AppUserResponse(paymentInfo.getReceiver().getUsername())
+                        , paymentInfo.getAmount())).collect(Collectors.toList());
+    }
+
+private List<ExpenseDto> getExpenseDtoList(Bill bill) throws UserNotFoundException {
+    List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
+    var expenses = expenseService.addExpense(bill, itemRequest);
+    return expenses.stream()
+            .map(expense -> new ExpenseDto(expense.getAppUser(), expense.getBill(), expense.getShareAmount()))
+            .toList();
+}
 
     @Getter
     @AllArgsConstructor
