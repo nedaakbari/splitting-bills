@@ -35,10 +35,10 @@ public class BillController {
 
     @PostMapping("/modify")
     @Operation(description = "this api used for modify bill that already added, include items,expense of that and ...")
-    public void modifyBill(@RequestBody ModifyBillRequest modifyBillRequest)
+    public void modifyBill(@RequestBody ModifyBillRequest modifyBillRequest, Authentication authentication)
             throws UserNotFoundException, ContentNotFoundException {
-
-        billService.modifyBill(modifyBillRequest);
+        var appUser = CheckAppUser.checkUserInstance(authentication);
+        billService.modifyBill(modifyBillRequest, appUser);
     }
 
     @PostMapping("/delete")

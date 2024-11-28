@@ -1,29 +1,151 @@
 package ir.splitwise.splitbills.service;
 
-import ir.splitwise.splitbills.entity.AppUser;
-import ir.splitwise.splitbills.entity.PaymentInfo;
-import ir.splitwise.splitbills.entity.ShareGroup;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import ir.splitwise.splitbills.entity.*;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
-import ir.splitwise.splitbills.models.AppUserResponse;
+import ir.splitwise.splitbills.exceptions.UserNotFoundException;
+import ir.splitwise.splitbills.models.ItemRequest;
 import ir.splitwise.splitbills.models.PaymentResponse;
+import ir.splitwise.splitbills.models.UserItem;
+import ir.splitwise.splitbills.repository.BillRepository;
+import ir.splitwise.splitbills.repository.ExpenseRepository;
 import ir.splitwise.splitbills.repository.PaymentInfoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentInfoService {
-//    private final ExpenseService expenseService;
-//    private final PaymentInfoRepository paymentInfoRepository;
-//    private final ShareGroupService shareGroupService;
+    private final ExpenseService expenseService;
+    private final ExpenseRepository expenseRepository;
+    private final PaymentInfoRepository paymentInfoRepository;
+    private final ShareGroupService shareGroupService;
+    private final UserService userService;
+    private final BillRepository billRepository;
+    private final Gson gson;
+    Type itemList = new TypeToken<List<ItemRequest>>() {
+    }.getType();
 
+    @Transactional(rollbackOn = Throwable.class)
+    public List<PaymentResponse> getPayInfoOfGroup(long groupId) throws ContentNotFoundException, UserNotFoundException {
+        ShareGroup foundGroup = shareGroupService.findGroupById(groupId);
+        List<Bill> billListOfAGroup = billRepository.findAllByGroupId(groupId);
 
+        List<Expense> expenseList = new ArrayList<>();
+        List<PaymentInfo> paymentInfoList = new ArrayList<>();
 
+        for (Bill bill : billListOfAGroup) {
+            List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
+            List<Expense> expenses = addExpense(bill, itemRequest);
+            expenseList.addAll(expenses);
+            List<PaymentInfo> pay = processPayInfo(new ArrayList<>(expenses), foundGroup, bill);
+            paymentInfoList.addAll(pay);
+        }
+        expenseRepository.saveAll(expenseList);
+        paymentInfoRepository.saveAll(paymentInfoList);
+        return null;
+    }
+
+    private Expense getPairExpense(Bill bill, UserItem userItem, double totalCost, int itemTotalCount) throws UserNotFoundException {
+        int count = userItem.getCount();
+        long userId = userItem.getUserId();
+        AppUser userById = userService.findUserById(userId);
+        Expense expense = new Expense();
+        expense.setAppUser(userById);
+        expense.setShareAmount(-(totalCost / itemTotalCount) * count);
+        expense.setBill(bill);
+        return expense;
+    }
+
+    private List<Expense> getEqualExpense(Bill bill, double totalCost, List<UserItem> userItems)
+            throws UserNotFoundException {
+
+        double sharedCount = totalCost / userItems.size();
+        List<Long> list = userItems.stream().map(UserItem::getUserId).toList();//todo set?
+        List<AppUser> allUserById = userService.findAllUserById(list);
+        return allUserById.stream().map(user -> new Expense(user, bill, -sharedCount)).toList();
+    }
+
+    public List<Expense> addExpense(Bill bill, List<ItemRequest> itemRequestList) throws UserNotFoundException {
+        List<Expense> expenseList = new ArrayList<>();
+        for (var itemRequest : itemRequestList) {
+            var totalCost = itemRequest.getTotalCost();
+            var itemTotalCount = itemRequest.getCount();
+            var userItems = itemRequest.getUserItems();
+            var equalShare = itemRequest.isEqualShare();
+            if (equalShare) {
+                expenseList.addAll(getEqualExpense(bill, totalCost, userItems));
+            } else {
+                for (UserItem userItem : userItems) {
+                    expenseList.add(getPairExpense(bill, userItem, totalCost, itemTotalCount));
+                }
+            }
+        }
+        expenseList.add(new Expense(bill.getPayer(), bill, bill.getTotalCost()));
+        return expenseList;
+    }
+
+    List<PaymentInfo> processPayInfo(List<Expense> expenses, ShareGroup shareGroup, Bill bill) {
+        List<Expense> payer = new ArrayList<>();
+        List<Expense> recivers = new ArrayList<>();
+        for (Expense expens : expenses) {
+            if (expens.getShareAmount() < 0) {
+                payer.add(expens);
+            } else {
+                recivers.add(expens);
+            }
+        }
+
+        payer.sort(Comparator.comparingDouble(Expense::getShareAmount));
+        recivers.sort(Comparator.comparingDouble(Expense::getShareAmount));
+        recivers.reversed();
+
+        return processForPayment(shareGroup, bill, payer, recivers);
+    }
+
+    private static List<PaymentInfo> processForPayment(ShareGroup shareGroup, Bill bill, List<Expense> deptors, List<Expense> recivers) {
+        List<PaymentInfo> paymentInfoList = new ArrayList<>();
+        int i = 0, j = 0;
+        while (i < deptors.size() && j < recivers.size()) {
+            var depter = deptors.get(i);
+            var depterCost = depter.getShareAmount();
+
+            var reciver = recivers.get(j);
+            var reciverCost = reciver.getShareAmount();
+
+            var costToPay = Math.min(-depterCost, reciverCost);
+
+            var paymentInfo = buildPaymentInfo(shareGroup, bill, depter, reciver, costToPay);
+            paymentInfoList.add(paymentInfo);
+
+            deptors.get(i).setShareAmount(depterCost + costToPay);
+            recivers.get(j).setShareAmount(reciverCost - costToPay);
+
+            if (deptors.get(i).getShareAmount() == 0) {
+                i++;
+            }
+            if (recivers.get(j).getShareAmount() == 0) {
+                j++;
+            }
+        }
+        return paymentInfoList;
+    }
+
+    private static PaymentInfo buildPaymentInfo(ShareGroup shareGroup, Bill bill,
+                                                Expense depter, Expense reciver, double costToPay) {
+        PaymentInfo paymentInfo = new PaymentInfo();
+        paymentInfo.setPayer(depter.getAppUser());
+        paymentInfo.setReceiver(reciver.getAppUser());
+        paymentInfo.setShareGroup(shareGroup);
+        paymentInfo.setAmount(costToPay);
+        paymentInfo.setBill(bill);
+        return paymentInfo;
+    }
 }

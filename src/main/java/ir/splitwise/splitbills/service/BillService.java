@@ -44,75 +44,16 @@ public class BillService {
         foundGroup.setTotalCost(totalCost + groupCost);
         shareGroupService.saveGroupInDb(foundGroup);
 
-        List<Expense> expenses = addExpense(bill, request.items());
-        List<PaymentInfo> pay = processPayInfo(expenses, foundGroup, bill);
-        paymentInfoRepository.saveAll(pay);
+//        List<Expense> expenses = addExpense(bill, request.items());
+//        List<PaymentInfo> pay = processPayInfo(expenses, foundGroup, bill);
+//        paymentInfoRepository.saveAll(pay);
         return new BaseRequest(savedBill.getId());//todo it is necessary?
     }
 
 
-    List<PaymentInfo> processPayInfo(List<Expense> expenses, ShareGroup shareGroup, Bill bill) {
-        List<Expense> payer = new ArrayList<>();
-        List<Expense> recivers = new ArrayList<>();
-        for (Expense expens : expenses) {
-            if (expens.getShareAmount() < 0) {
-                payer.add(expens);
-            } else {
-                recivers.add(expens);
-            }
-        }
-
-        payer.sort(Comparator.comparingDouble(Expense::getShareAmount));
-        recivers.sort(Comparator.comparingDouble(Expense::getShareAmount));
-        recivers.reversed();
-
-        return processForPayment(shareGroup, bill, payer, recivers);
-    }
-
-    private static List<PaymentInfo> processForPayment(ShareGroup shareGroup, Bill bill, List<Expense> deptors, List<Expense> recivers) {
-        List<PaymentInfo> paymentInfoList = new ArrayList<>();
-        int i = 0, j = 0;
-        while (i < deptors.size() && j < recivers.size()) {
-            var depter = deptors.get(i);
-            var depterCost = depter.getShareAmount();
-
-            var reciver = recivers.get(j);
-            var reciverCost = reciver.getShareAmount();
-
-            var costToPay = Math.min(-depterCost, reciverCost);
-
-            var paymentInfo = buildPaymentInfo(shareGroup, bill, depter, reciver, costToPay);
-            paymentInfoList.add(paymentInfo);
-
-            deptors.get(i).setShareAmount(depterCost + costToPay);
-            recivers.get(j).setShareAmount(reciverCost - costToPay);
-
-            if (deptors.get(i).getShareAmount() == 0) {
-                i++;
-            }
-            if (recivers.get(j).getShareAmount() == 0) {
-                j++;
-            }
-        }
-        return paymentInfoList;
-    }
-
-    private static PaymentInfo buildPaymentInfo(ShareGroup shareGroup, Bill bill,
-                                                Expense depter, Expense reciver, double costToPay) {
-        PaymentInfo paymentInfo = new PaymentInfo();
-        paymentInfo.setPayer(depter.getAppUser());
-        paymentInfo.setReceiver(reciver.getAppUser());
-        paymentInfo.setShareGroup(shareGroup);
-        paymentInfo.setAmount(costToPay);
-        paymentInfo.setBill(bill);
-        return paymentInfo;
-    }
-
     @Transactional(rollbackOn = Throwable.class)
-    public void modifyBill(ModifyBillRequest request) throws UserNotFoundException, ContentNotFoundException {
+    public void modifyBill(ModifyBillRequest request,AppUser modifyer) throws UserNotFoundException, ContentNotFoundException {
         var foundBill = findBillFromDb(request.id());
-
-        var modifyer = userService.findUserById(1);//todo get from spring
         var payer = userService.findUserById(request.payerId());
 
         updateBillParams(request, foundBill, modifyer, payer);
@@ -122,6 +63,13 @@ public class BillService {
         var totalCost = getBillTotalCost(request.items());
         shareGroup.setTotalCost(totalCost);
         shareGroupService.saveGroupInDb(shareGroup);
+
+//        List<Expense> expenses = expenseRepository.finaAllByBillId(foundBill.getId());
+//        deleteAllTheseExpense and Payment info
+//        calculating the begin
+//        List<PaymentInfo> pay = processPayInfo(expenses, shareGroup, foundBill);
+//        paymentInfoRepository.saveAll(pay);
+        //todo expense and payment info set
     }
 
     private static double getBillTotalCost(List<ItemRequest> items) {
@@ -182,7 +130,6 @@ public class BillService {
     public List<PaymentResponse> getPayInfoOfGroup(long shareGroupId) throws ContentNotFoundException {
         var foundGroup = shareGroupService.findGroupById(shareGroupId);
         List<PaymentInfo> payInfoOfGroup = getPayInfoOfGroup(foundGroup);
-
         return getPaymentResponses(payInfoOfGroup);
     }
 
@@ -266,44 +213,9 @@ public class BillService {
         return billRepository.findAllByGroupId(groupId);
     }
 
-    public List<Expense> addExpense(Bill bill, List<ItemRequest> itemRequestList) throws UserNotFoundException {
-        List<Expense> expenseList = new ArrayList<>();
-        for (var itemRequest : itemRequestList) {
-            var totalCost = itemRequest.getTotalCost();
-            var itemTotalCount = itemRequest.getCount();
-            var userItems = itemRequest.getUserItems();
-            var equalShare = itemRequest.isEqualShare();
-            if (equalShare) {
-                expenseList.addAll(getEqualExpense(bill, totalCost, userItems));
-            } else {
-                for (UserItem userItem : userItems) {
-                    expenseList.add(getPairExpense(bill, userItem, totalCost, itemTotalCount));
-                }
-            }
-        }
-        expenseList.add(new Expense(bill.getPayer(), bill, bill.getTotalCost()));
-        return expenseRepository.saveAll(expenseList);
-    }
 
-    private Expense getPairExpense(Bill bill, UserItem userItem, double totalCost, int itemTotalCount) throws UserNotFoundException {
-        int count = userItem.getCount();
-        long userId = userItem.getUserId();
-        AppUser userById = userService.findUserById(userId);
-        Expense expense = new Expense();
-        expense.setAppUser(userById);
-        expense.setShareAmount(-(totalCost / itemTotalCount) * count);
-        expense.setBill(bill);
-        return expense;
-    }
 
-    private List<Expense> getEqualExpense(Bill bill, double totalCost, List<UserItem> userItems)
-            throws UserNotFoundException {
 
-        double sharedCount = totalCost / userItems.size();
-        List<Long> list = userItems.stream().map(UserItem::getUserId).toList();//todo set?
-        List<AppUser> allUserById = userService.findAllUserById(list);
-        return allUserById.stream().map(user -> new Expense(user, bill, -sharedCount)).toList();
-    }
 
 
     public Map<AppUser, Double> getALlDeptOfGroup(long groupId) throws ContentNotFoundException {
