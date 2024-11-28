@@ -73,4 +73,15 @@ docker-compose up --build
 - Metrics: /actuator/metrics
 - Info: /actuator/info
 
+---
+
+## TODO
+- ability to use app without being a memeber
+- its better to implement authenticate with oauth2 and sign in with gmail
+- refresh token
+- invalid other token when ask for a new token
+- ratelimitter and limitted user to ask for token too many or call other api 
+- can download the excel file of expense of group
+- can share group picture
+- can have profile photo
 
