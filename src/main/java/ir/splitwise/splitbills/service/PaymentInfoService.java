@@ -76,29 +76,29 @@ public class PaymentInfoService {
     }
 
     private static List<PaymentInfo> processForPayment(ShareGroup shareGroup, Bill bill,
-                                                       List<ExpenseDto> deptors, List<ExpenseDto> recivers) {
+                                                       List<ExpenseDto> deptorList, List<ExpenseDto> creditorList) {
 
         List<PaymentInfo> paymentInfoList = new ArrayList<>();
         int i = 0, j = 0;
-        while (i < deptors.size() && j < recivers.size()) {
-            var depter = deptors.get(i);
-            var depterCost = depter.getShareAmount();
+        while (i < deptorList.size() && j < creditorList.size()) {
+            var deptor = deptorList.get(i);
+            var deptorCost = deptor.getShareAmount();
 
-            var reciver = recivers.get(j);
-            var reciverCost = reciver.getShareAmount();
+            var creditor = creditorList.get(j);
+            var creditorCost = creditor.getShareAmount();
 
-            var costToPay = Math.min(-depterCost, reciverCost);
+            var costToPay = Math.min(-deptorCost, creditorCost);
 
-            var paymentInfo = buildPaymentInfo(shareGroup, bill, depter, reciver, costToPay);
+            var paymentInfo = buildPaymentInfo(shareGroup, bill, deptor, creditor, costToPay);
             paymentInfoList.add(paymentInfo);
 
-            deptors.get(i).setShareAmount(depterCost + costToPay);
-            recivers.get(j).setShareAmount(reciverCost - costToPay);
+            deptorList.get(i).setShareAmount(deptorCost + costToPay);
+            creditorList.get(j).setShareAmount(creditorCost - costToPay);
 
-            if (deptors.get(i).getShareAmount() == 0) {
+            if (deptorList.get(i).getShareAmount() == 0) {
                 i++;
             }
-            if (recivers.get(j).getShareAmount() == 0) {
+            if (creditorList.get(j).getShareAmount() == 0) {
                 j++;
             }
         }
@@ -106,10 +106,10 @@ public class PaymentInfoService {
     }
 
     private static PaymentInfo buildPaymentInfo(ShareGroup shareGroup, Bill bill,
-                                                ExpenseDto depter, ExpenseDto reciver, double costToPay) {
+                                                ExpenseDto deptor, ExpenseDto creditor, double costToPay) {
         PaymentInfo paymentInfo = new PaymentInfo();
-        paymentInfo.setPayer(depter.getAppUser());
-        paymentInfo.setReceiver(reciver.getAppUser());
+        paymentInfo.setPayer(deptor.getAppUser());
+        paymentInfo.setReceiver(creditor.getAppUser());
         paymentInfo.setShareGroup(shareGroup);
         paymentInfo.setAmount(costToPay);
         paymentInfo.setBill(bill);
@@ -140,7 +140,7 @@ public class PaymentInfoService {
 
     @Getter
     @AllArgsConstructor
-    private class ExpenseDto {
+    private static class ExpenseDto {
         private AppUser appUser;
         private Bill bill;
         @Setter
