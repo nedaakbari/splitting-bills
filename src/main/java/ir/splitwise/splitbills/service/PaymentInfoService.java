@@ -12,7 +12,10 @@ import ir.splitwise.splitbills.repository.BillRepository;
 import ir.splitwise.splitbills.repository.ExpenseRepository;
 import ir.splitwise.splitbills.repository.PaymentInfoRepository;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
@@ -38,22 +41,25 @@ public class PaymentInfoService {
         ShareGroup foundGroup = shareGroupService.findGroupById(groupId);
         List<Bill> billListOfAGroup = billRepository.findAllByGroupId(groupId);
 
-        List<Expense> expenseList = new ArrayList<>();
         List<PaymentInfo> paymentInfoList = new ArrayList<>();
-
         for (Bill bill : billListOfAGroup) {
             List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
             List<Expense> expenses = addExpense(bill, itemRequest);
-            expenseList.addAll(expenses);
-            List<PaymentInfo> pay = processPayInfo(new ArrayList<>(expenses), foundGroup, bill);
+            List<ExpenseDto> list = expenses.stream()
+                    .map(expense -> new ExpenseDto(expense.getAppUser(), expense.getBill(), expense.getShareAmount()))
+                    .toList();
+
+
+            List<PaymentInfo> pay = processPayInfo(list, foundGroup, bill);
             paymentInfoList.addAll(pay);
         }
-        expenseRepository.saveAll(expenseList);
+
         paymentInfoRepository.saveAll(paymentInfoList);
         return null;
     }
 
-    private Expense getPairExpense(Bill bill, UserItem userItem, double totalCost, int itemTotalCount) throws UserNotFoundException {
+    private Expense getPairExpense(Bill bill, UserItem userItem,
+                                   double totalCost, int itemTotalCount) throws UserNotFoundException {
         int count = userItem.getCount();
         long userId = userItem.getUserId();
         AppUser userById = userService.findUserById(userId);
@@ -89,13 +95,13 @@ public class PaymentInfoService {
             }
         }
         expenseList.add(new Expense(bill.getPayer(), bill, bill.getTotalCost()));
-        return expenseList;
+        return expenseRepository.saveAll(expenseList);
     }
 
-    List<PaymentInfo> processPayInfo(List<Expense> expenses, ShareGroup shareGroup, Bill bill) {
-        List<Expense> payer = new ArrayList<>();
-        List<Expense> recivers = new ArrayList<>();
-        for (Expense expens : expenses) {
+    List<PaymentInfo> processPayInfo(List<ExpenseDto> expenses, ShareGroup shareGroup, Bill bill) {
+        List<ExpenseDto> payer = new ArrayList<>();
+        List<ExpenseDto> recivers = new ArrayList<>();
+        for (ExpenseDto expens : expenses) {
             if (expens.getShareAmount() < 0) {
                 payer.add(expens);
             } else {
@@ -103,14 +109,16 @@ public class PaymentInfoService {
             }
         }
 
-        payer.sort(Comparator.comparingDouble(Expense::getShareAmount));
-        recivers.sort(Comparator.comparingDouble(Expense::getShareAmount));
+        payer.sort(Comparator.comparingDouble(ExpenseDto::getShareAmount));
+        recivers.sort(Comparator.comparingDouble(ExpenseDto::getShareAmount));
         recivers.reversed();
 
         return processForPayment(shareGroup, bill, payer, recivers);
     }
 
-    private static List<PaymentInfo> processForPayment(ShareGroup shareGroup, Bill bill, List<Expense> deptors, List<Expense> recivers) {
+    private static List<PaymentInfo> processForPayment(ShareGroup shareGroup, Bill bill,
+                                                       List<ExpenseDto> deptors, List<ExpenseDto> recivers) {
+
         List<PaymentInfo> paymentInfoList = new ArrayList<>();
         int i = 0, j = 0;
         while (i < deptors.size() && j < recivers.size()) {
@@ -139,7 +147,7 @@ public class PaymentInfoService {
     }
 
     private static PaymentInfo buildPaymentInfo(ShareGroup shareGroup, Bill bill,
-                                                Expense depter, Expense reciver, double costToPay) {
+                                                ExpenseDto depter, ExpenseDto reciver, double costToPay) {
         PaymentInfo paymentInfo = new PaymentInfo();
         paymentInfo.setPayer(depter.getAppUser());
         paymentInfo.setReceiver(reciver.getAppUser());
@@ -147,5 +155,14 @@ public class PaymentInfoService {
         paymentInfo.setAmount(costToPay);
         paymentInfo.setBill(bill);
         return paymentInfo;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    private class ExpenseDto {
+        private AppUser appUser;
+        private Bill bill;
+        @Setter
+        private double shareAmount;
     }
 }

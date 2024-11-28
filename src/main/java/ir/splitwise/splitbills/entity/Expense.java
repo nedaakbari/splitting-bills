@@ -24,16 +24,4 @@ public class Expense extends BaseEntity {
     private Bill bill;
 
     private double shareAmount;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Expense expense)) return false;
-        return Objects.equals(getAppUser(), expense.getAppUser()) && Objects.equals(getBill(), expense.getBill());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getAppUser(), getBill());
-    }
 }
