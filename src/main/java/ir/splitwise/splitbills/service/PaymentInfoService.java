@@ -11,12 +11,12 @@ import ir.splitwise.splitbills.models.UserItem;
 import ir.splitwise.splitbills.repository.BillRepository;
 import ir.splitwise.splitbills.repository.ExpenseRepository;
 import ir.splitwise.splitbills.repository.PaymentInfoRepository;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class PaymentInfoService {
     Type itemList = new TypeToken<List<ItemRequest>>() {
     }.getType();
 
-    @Transactional(rollbackOn = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class)
     public List<PaymentResponse> getPayInfoOfGroup(long groupId) throws ContentNotFoundException, UserNotFoundException {
         ShareGroup foundGroup = shareGroupService.findGroupById(groupId);
         List<Bill> billListOfAGroup = billRepository.findAllByGroupId(groupId);
@@ -50,7 +50,7 @@ public class PaymentInfoService {
                     .toList();
 
 
-            List<PaymentInfo> pay = processPayInfo(list, foundGroup, bill);
+            List<PaymentInfo> pay = processPayInfo(list, foundGroup, bill);//todo copy of that
             paymentInfoList.addAll(pay);
         }
 
@@ -98,6 +98,7 @@ public class PaymentInfoService {
         return expenseRepository.saveAll(expenseList);
     }
 
+    @Transactional(readOnly = true)
     List<PaymentInfo> processPayInfo(List<ExpenseDto> expenses, ShareGroup shareGroup, Bill bill) {
         List<ExpenseDto> payer = new ArrayList<>();
         List<ExpenseDto> recivers = new ArrayList<>();

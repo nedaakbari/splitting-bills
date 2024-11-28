@@ -9,9 +9,9 @@ import ir.splitwise.splitbills.models.*;
 import ir.splitwise.splitbills.repository.BillRepository;
 import ir.splitwise.splitbills.repository.ExpenseRepository;
 import ir.splitwise.splitbills.repository.PaymentInfoRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class BillService {
     private final ExpenseRepository expenseRepository;
     private final Gson gson;
 
-    @Transactional(rollbackOn = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class)
     public BaseRequest addBill(AddBillRequest request, AppUser appUser)
             throws UserNotFoundException, ContentNotFoundException, InvalidDataException {
         //request.items() check not be null
@@ -51,7 +51,7 @@ public class BillService {
     }
 
 
-    @Transactional(rollbackOn = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class)
     public void modifyBill(ModifyBillRequest request,AppUser modifyer) throws UserNotFoundException, ContentNotFoundException {
         var foundBill = findBillFromDb(request.id());
         var payer = userService.findUserById(request.payerId());
@@ -108,7 +108,7 @@ public class BillService {
         return bill;
     }
 
-    @Transactional(rollbackOn = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class)
     public void deleteBill(long id) throws ContentNotFoundException {
         var founfBill = findBillFromDb(id);
         var deletedBillCost = founfBill.getTotalCost();
