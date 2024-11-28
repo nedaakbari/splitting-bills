@@ -62,4 +62,13 @@ docker-compose up --build
 - Swagger UI: http://localhost:8080/swagger-ui.html
 - Actuator Endpoints: http://localhost:8080/actuator
 
+---
+
+## API Endpoints
+
+ Monitoring with Actuator:
+- Health Check: /actuator/health
+- Metrics: /actuator/metrics
+- Info: /actuator/info
+
 
