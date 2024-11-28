@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import ir.splitwise.splitbills.entity.*;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
+import ir.splitwise.splitbills.models.AppUserResponse;
 import ir.splitwise.splitbills.models.ItemRequest;
 import ir.splitwise.splitbills.models.PaymentResponse;
 import ir.splitwise.splitbills.models.UserItem;
@@ -43,19 +44,23 @@ public class PaymentInfoService {
 
         List<PaymentInfo> paymentInfoList = new ArrayList<>();
         for (Bill bill : billListOfAGroup) {
-            List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
-            List<Expense> expenses = addExpense(bill, itemRequest);
-            List<ExpenseDto> list = expenses.stream()
-                    .map(expense -> new ExpenseDto(expense.getAppUser(), expense.getBill(), expense.getShareAmount()))
-                    .toList();
-
-
-            List<PaymentInfo> pay = processPayInfo(list, foundGroup, bill);//todo copy of that
-            paymentInfoList.addAll(pay);
+            var list = getExpenseDtoList(bill);
+            var paymentInfo = processPayInfo(list, foundGroup, bill);
+            paymentInfoList.addAll(paymentInfo);
         }
 
-        paymentInfoRepository.saveAll(paymentInfoList);
-        return null;
+        var savedPayment = paymentInfoRepository.saveAll(paymentInfoList);
+        return savedPayment.stream().map(x -> new PaymentResponse(new AppUserResponse(x.getPayer().getUsername()),
+                new AppUserResponse(x.getReceiver().getUsername()), x.getAmount())).toList();
+
+    }
+
+    private List<ExpenseDto> getExpenseDtoList(Bill bill) throws UserNotFoundException {
+        List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
+        var expenses = addExpense(bill, itemRequest);
+        return  expenses.stream()
+                .map(expense -> new ExpenseDto(expense.getAppUser(), expense.getBill(), expense.getShareAmount()))
+                .toList();
     }
 
     private Expense getPairExpense(Bill bill, UserItem userItem,

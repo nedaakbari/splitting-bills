@@ -28,6 +28,6 @@ public class Bill extends BaseEntity {
     @ManyToOne
     private AppUser modifier;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private ShareGroup shareGroup;
 }
