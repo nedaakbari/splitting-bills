@@ -67,7 +67,6 @@ public class ShareGroupService {
                 .orElseThrow(() -> new ContentNotFoundException("group " + id + "not found"));
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     public void deleteAGroup(long id) throws ContentNotFoundException {
         var foundGroup = findGroupById(id);
         shareGroupRepository.delete(foundGroup);
