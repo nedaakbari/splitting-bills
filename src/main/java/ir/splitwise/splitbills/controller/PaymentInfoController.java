@@ -7,6 +7,7 @@ import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.BaseRequest;
+import ir.splitwise.splitbills.models.PaymentRequest;
 import ir.splitwise.splitbills.models.PaymentResponse;
 import ir.splitwise.splitbills.service.PaymentInfoService;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +38,10 @@ public class PaymentInfoController {
     @Operation(description = "this api used for calculating expense of a user")
     @PostMapping("/get-all-for-user")
 //    @PreAuthorize("@customSecurityService.canAccessUserExpenseInfo(authentication, #request.id())")
-    public List<PaymentResponse> getAllPaymentInfoOfUser(@RequestBody BaseRequest request, Authentication authentication)
+    public List<PaymentResponse> getAllPaymentInfoOfUser(@RequestBody PaymentRequest request, Authentication authentication)
             throws UserNotFoundException {
 
         var appUser = CheckAppUser.checkUserInstance(authentication);
-        return paymentInfoService.getPayInfoOfUser(request.id(), appUser);
+        return paymentInfoService.getPayInfoOfUser(request, appUser);
     }
 }

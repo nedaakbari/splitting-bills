@@ -2,13 +2,16 @@ package ir.splitwise.splitbills.service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import ir.splitwise.splitbills.entity.*;
+import ir.splitwise.splitbills.entity.AppUser;
+import ir.splitwise.splitbills.entity.Bill;
+import ir.splitwise.splitbills.entity.PaymentInfo;
+import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.AppUserResponse;
 import ir.splitwise.splitbills.models.ItemRequest;
+import ir.splitwise.splitbills.models.PaymentRequest;
 import ir.splitwise.splitbills.models.PaymentResponse;
-import ir.splitwise.splitbills.models.UserItem;
 import ir.splitwise.splitbills.repository.PaymentInfoRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +24,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -114,8 +116,10 @@ public class PaymentInfoService {
         return paymentInfo;
     }
 
-    public List<PaymentResponse> getPayInfoOfUser(long groupId, AppUser requester) {
-        var allByIdAndShareGroup = paymentInfoRepository.findAllByIdAndShareGroup(requester.getId(), groupId);
+    public List<PaymentResponse> getPayInfoOfUser(PaymentRequest request, AppUser requester) {
+        var allByIdAndShareGroup = request.dept() ?
+                paymentInfoRepository.findAllUserRecivePaymentInfo(requester.getId(), request.groupId())
+                : paymentInfoRepository.findAllUserDeptPaymentInfo(requester.getId(), request.groupId());
         return getPaymentResponses(allByIdAndShareGroup);
     }
 
@@ -126,13 +130,13 @@ public class PaymentInfoService {
                         , paymentInfo.getAmount())).collect(Collectors.toList());
     }
 
-private List<ExpenseDto> getExpenseDtoList(Bill bill) throws UserNotFoundException {
-    List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
-    var expenses = expenseService.addExpense(bill, itemRequest);
-    return expenses.stream()
-            .map(expense -> new ExpenseDto(expense.getAppUser(), expense.getBill(), expense.getShareAmount()))
-            .toList();
-}
+    private List<ExpenseDto> getExpenseDtoList(Bill bill) throws UserNotFoundException {
+        List<ItemRequest> itemRequest = gson.fromJson(bill.getItems(), itemList);
+        var expenses = expenseService.addExpense(bill, itemRequest);
+        return expenses.stream()
+                .map(expense -> new ExpenseDto(expense.getAppUser(), expense.getBill(), expense.getShareAmount()))
+                .toList();
+    }
 
     @Getter
     @AllArgsConstructor
