@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ShareGroup extends BaseEntity {
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     private AppUser owner;
 
     @ManyToMany(fetch = FetchType.LAZY)
