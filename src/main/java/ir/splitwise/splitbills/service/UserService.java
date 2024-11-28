@@ -2,7 +2,6 @@ package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
-import ir.splitwise.splitbills.models.RegisterUserRequest;
 import ir.splitwise.splitbills.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

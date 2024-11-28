@@ -3,7 +3,7 @@
 
     <springProperty scope="context"
                     name="configurable-logger.logger-file-name-pattern"
-                    source="configurable-logger.logger-file-name-pattern" />
+                    source="configurable-logger.logger-file-name-pattern"/>
 
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
@@ -29,6 +29,6 @@
     </appender>
 
     <logger name="org.zalando.logbook" level="TRACE" additivity="false">
-        <appender-ref ref="JsonFile" />
+        <appender-ref ref="JsonFile"/>
     </logger>
 </configuration>

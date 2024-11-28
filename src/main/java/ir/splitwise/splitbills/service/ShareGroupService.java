@@ -7,7 +7,6 @@ import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.*;
 import ir.splitwise.splitbills.models.enumeration.State;
 import ir.splitwise.splitbills.repository.ShareGroupRepository;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
