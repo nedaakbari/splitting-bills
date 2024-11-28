@@ -24,14 +24,15 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private static final Long JWT_TIME_TOKEN = 1000 * 60L;
 
     public AuthResponse register(RegisterUserRequest request, HttpServletResponse response) throws DuplicateDataException {
 
         var appUser = getUser(request);
         appUser.setRole(Role.USER);
         userRepository.save(appUser);
-        var token = jwtService.generateToken(appUser);//todo
-        setCookie(response, token, System.currentTimeMillis() + 1000 * 60 * 24);//todo fix with jwt time
+        var token = jwtService.generateToken(appUser);
+        setCookie(response, token, System.currentTimeMillis() + JWT_TIME_TOKEN);
 
         return new AuthResponse(token);
     }
@@ -63,10 +64,8 @@ public class AuthenticationService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         var user = userRepository.findByEmail(request.email()).orElseThrow();
         var token = jwtService.generateToken(user);
-        setCookie(response, token, System.currentTimeMillis() + 1000 * 60 * 24);
-        //todo what happened if i have some excption here?
-    }//todo fix not generate more than n request in seconds and when get new expitre other token
-
+        setCookie(response, token, System.currentTimeMillis() + JWT_TIME_TOKEN);
+    }
 
     public void logout(HttpServletResponse response) {
         setCookie(response, "", 0);

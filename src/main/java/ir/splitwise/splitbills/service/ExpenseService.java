@@ -44,7 +44,7 @@ public class ExpenseService {
             throws UserNotFoundException {
 
         double sharedCount = totalCost / userItems.size();
-        List<Long> userIdList = userItems.stream().map(UserItem::userId).toList();//todo set?
+        List<Long> userIdList = userItems.stream().map(UserItem::userId).toList();
         List<AppUser> allUserById = userService.findAllUserById(userIdList);
         return allUserById.stream().map(user -> new Expense(user, bill, -sharedCount)).toList();
     }

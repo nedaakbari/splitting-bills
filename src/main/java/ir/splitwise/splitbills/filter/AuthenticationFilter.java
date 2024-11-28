@@ -23,7 +23,6 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-@Order(2)
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -36,7 +35,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
         var authorizationToken = getTokenFromCookie(request);
         if (authorizationToken == null) {
-            filterChain.doFilter(request, response);//todo
+            filterChain.doFilter(request, response);
             return;
         }
         var subject = jwtService.extractUsername(authorizationToken);

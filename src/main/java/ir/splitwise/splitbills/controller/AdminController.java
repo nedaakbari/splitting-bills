@@ -20,7 +20,6 @@ public class AdminController {
 
     @PostMapping("/add")
     @Operation(summary = "addAdmin", description = "this api used for adding a new admin to application just with another admin")
-//    @PreAuthorize("hasRole('ADMIN')")
     public void addAmin(RegisterUserRequest request) throws DuplicateDataException {
         authenticationService.registerAdmin(request);
     }

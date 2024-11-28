@@ -43,10 +43,4 @@ public class PaymentInfo {
     public int hashCode() {
         return Objects.hash(getPayer(), getReceiver(), getShareGroup());
     }
-//todo for transaction Info
-//    private PayWay payWay;
-//@Temporal(TemporalType.TIMESTAMP)
-//@CreatedDate
-//private Date creationDate;
-
 }

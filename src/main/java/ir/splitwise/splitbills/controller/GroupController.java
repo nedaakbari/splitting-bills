@@ -22,7 +22,8 @@ public class GroupController {
     private final ShareGroupService shareGroupService;
 
     @PostMapping("/add")
-    @Operation(description = "this api used for build a new group,it has a justOwnerModify that if be true just the creator can add or modify the group and it's bills")
+    @Operation(description = "this api used for build a new group,it has a justOwnerModify that if be true just the" +
+            " creator can add or modify the group and it's bills")
     public BaseRequestResponse addGroup(@RequestBody ShareGroupRequest request, Authentication authentication)
             throws UserNotFoundException {
 
@@ -57,6 +58,7 @@ public class GroupController {
         return shareGroupService.getAllGroupOfAUser(appUser);
     }
 
+    @Operation(description = "this api shows all active groups the user is member of")
     @GetMapping("/get-all-active")
     public List<ActiveShareGroupResponse> getAllActiveGroupOfUser(Authentication authentication)
             throws UserNotFoundException {

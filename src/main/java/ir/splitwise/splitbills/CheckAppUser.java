@@ -9,11 +9,10 @@ import org.springframework.security.core.Authentication;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CheckAppUser {
     public static AppUser checkUserInstance(Authentication authentication) throws UserNotFoundException {
-        //        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Object principal = authentication.getPrincipal();
         if (principal instanceof AppUser appUser) {
             return appUser;
         }
-        throw new UserNotFoundException("");//todo
+        throw new UserNotFoundException("");
     }
 }

@@ -1,6 +1,6 @@
 package ir.splitwise.splitbills.entity;
 
-import ir.splitwise.splitbills.models.GroupMode;
+import ir.splitwise.splitbills.models.enumeration.GroupMode;
 import ir.splitwise.splitbills.models.enumeration.State;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,6 +27,12 @@ public class ShareGroup extends BaseEntity {
     private double totalCost;
     private String description;
     private State state;
+
+    @OneToMany(mappedBy = "shareGroup", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    List<Bill> billList;
+
+    @OneToMany(mappedBy = "shareGroup", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    List<PaymentInfo> paymentInfoList;
 
     @Builder
     public ShareGroup(AppUser owner,

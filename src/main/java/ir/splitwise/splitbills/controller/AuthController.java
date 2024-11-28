@@ -1,5 +1,6 @@
 package ir.splitwise.splitbills.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import ir.splitwise.splitbills.exceptions.DuplicateDataException;
 import ir.splitwise.splitbills.models.LoginRequest;
@@ -22,20 +23,23 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public void register(@Validated @RequestBody RegisterUserRequest request, HttpServletResponse response)//HttpServletResponse response
+    @Operation(summary = "register", description = "this api used for register a new user in app")
+    public void register(@Validated @RequestBody RegisterUserRequest request, HttpServletResponse response)
             throws DuplicateDataException {
 
         authenticationService.register(request, response);
     }
 
     @PostMapping("/login")
+    @Operation(summary = "login", description = "this api used for login user in app")
     public void login(@Validated @RequestBody LoginRequest request, HttpServletResponse httpServletResponse) {
         authenticationService.login(request, httpServletResponse);
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "logout", description = "this api used for logout user")
     public void logout(HttpServletResponse response) {
-        SecurityContextHolder.clearContext();//todo it is true?
+        SecurityContextHolder.clearContext();
         authenticationService.logout(response);
     }
 }

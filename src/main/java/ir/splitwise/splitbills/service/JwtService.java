@@ -22,7 +22,7 @@ public class JwtService {
         return Jwts.builder().setClaims(new HashMap<>())
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))//todo getFrom application.properties;
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60))
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY)), SignatureAlgorithm.HS256)
                 .compact();
     }

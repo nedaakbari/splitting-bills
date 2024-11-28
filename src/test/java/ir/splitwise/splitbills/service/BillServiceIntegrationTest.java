@@ -8,6 +8,7 @@ import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.InvalidDataException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.*;
+import ir.splitwise.splitbills.models.enumeration.GroupMode;
 import ir.splitwise.splitbills.repository.BillRepository;
 import ir.splitwise.splitbills.repository.ShareGroupRepository;
 import ir.splitwise.splitbills.repository.UserRepository;
@@ -19,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @SpringBootTest
 public class BillServiceIntegrationTest {

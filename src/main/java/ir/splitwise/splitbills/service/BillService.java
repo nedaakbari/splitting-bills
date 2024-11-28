@@ -29,7 +29,6 @@ public class BillService {
     @Transactional(rollbackFor = Throwable.class)
     public BaseRequestResponse addBill(AddBillRequest request, AppUser appUser)
             throws UserNotFoundException, ContentNotFoundException, InvalidDataException {
-        //request.items() check not be null
         var totalCost = getBillTotalCost(request.items());
         if (totalCost != request.totalCost()) {
             throw new InvalidDataException("totalCost is not match");
@@ -58,7 +57,6 @@ public class BillService {
         var totalCost = getBillTotalCost(request.items());
         shareGroup.setTotalCost(totalCost);
         shareGroupService.saveGroupInDb(shareGroup);
-        //todo expense and payment info set
     }
 
     private static double getBillTotalCost(List<ItemRequest> items) {

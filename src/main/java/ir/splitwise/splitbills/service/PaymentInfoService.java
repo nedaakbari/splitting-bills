@@ -123,12 +123,12 @@ public class PaymentInfoService {
     public List<PaymentResponse> getPayInfoOfUser(PaymentRequest request, AppUser requester) {
         var allByIdAndShareGroup = request.dept() ?
                 paymentInfoRepository.findAllUserDeptPaymentInfo(requester.getId(), request.groupId())
-                : paymentInfoRepository.findAllUserRecivePaymentInfo(requester.getId(), request.groupId());
+                : paymentInfoRepository.findAllUserReciverPaymentInfo(requester.getId(), request.groupId());
         return getPaymentResponses(allByIdAndShareGroup);
     }
 
     private static List<PaymentResponse> getPaymentResponses(List<PaymentInfo> payInfoOfGroup) {
-        return payInfoOfGroup.stream().map(paymentInfo ->//todo fix the load of all info
+        return payInfoOfGroup.stream().map(paymentInfo ->
                 new PaymentResponse(new AppUserResponse(paymentInfo.getPayer().getUsername()),
                         new AppUserResponse(paymentInfo.getReceiver().getUsername())
                         , paymentInfo.getAmount())).collect(Collectors.toList());
@@ -150,7 +150,6 @@ public class PaymentInfoService {
         @Setter
         private double shareAmount;
     }
-
 
     @Getter
     @Setter
