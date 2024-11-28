@@ -19,17 +19,11 @@ public class ShareGroup extends BaseEntity {
     @ManyToMany(fetch = FetchType.LAZY)
     private List<AppUser> members;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "shareGroup")
-    private List<Bill> billList;
-
     @Column(nullable = false)
     private GroupMode groupMode;
 
     private String title;
-    private double totalCost;//todo it must be autho calculate
+    private double totalCost;
     private String description;
     private State state;
-
-    //todo share picture of the group
-    //todo List<Byte> pictures;
 }

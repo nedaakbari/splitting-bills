@@ -22,15 +22,6 @@ public class AppUser extends BaseEntity implements UserDetails {//todo what happ
     private String firstname;
     private String lastName;
     private String email;
-
-    @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<ShareGroup> groupIds;
-
-    @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<Expense> expenses;
-
     @JsonIgnore
     private String password;
 

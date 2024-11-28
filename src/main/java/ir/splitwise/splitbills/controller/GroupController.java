@@ -10,7 +10,7 @@ import ir.splitwise.splitbills.models.ActiveShareGroupResponse;
 import ir.splitwise.splitbills.models.BaseRequest;
 import ir.splitwise.splitbills.models.ShareGroupRequest;
 import ir.splitwise.splitbills.models.ShareGroupResponse;
-import ir.splitwise.splitbills.service.ModifySharedGroupRequest;
+import ir.splitwise.splitbills.models.ModifySharedGroupRequest;
 import ir.splitwise.splitbills.service.ShareGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

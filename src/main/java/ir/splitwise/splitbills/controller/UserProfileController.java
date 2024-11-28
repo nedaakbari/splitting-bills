@@ -19,13 +19,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 public class UserProfileController {
     private final ExpenseService expenseService;
-
-    @PostMapping("/expense")
-    public DeptResponse getAllDeptOfUser(@RequestBody BaseRequest request, Authentication authentication)
-            throws ContentNotFoundException, UserNotFoundException {
-
-        AppUser appUser = CheckAppUser.checkUserInstance(authentication);
-//        expenseService.getALlDeptOfGroup(request.id());
-        return expenseService.getAllExpenseOfUser(request.id(), appUser);
-    }
 }

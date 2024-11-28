@@ -14,7 +14,7 @@ import java.util.Date;
 @Getter
 public class BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)//todo AUTO=sequence is better or identity
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)

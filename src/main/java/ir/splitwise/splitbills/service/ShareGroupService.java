@@ -2,10 +2,10 @@ package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.entity.ShareGroup;
-import ir.splitwise.splitbills.models.enumeration.State;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.*;
+import ir.splitwise.splitbills.models.enumeration.State;
 import ir.splitwise.splitbills.repository.ShareGroupRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -75,10 +75,15 @@ public class ShareGroupService {
                 .orElseThrow(() -> new ContentNotFoundException("group " + id + "not found"));
     }
 
+    public ShareGroup findGroupByUserAndGroupId(long groupId, long userId) throws ContentNotFoundException {
+        return shareGroupRepository.findGroupByUserAndGroupId(groupId, userId)
+                .orElseThrow(() -> new ContentNotFoundException("the user:" + userId + " have no group with id: " + groupId));
+    }
+
     public void deleteAGroup(long id) throws ContentNotFoundException {
         ShareGroup foundGroup = findGroupById(id);
-//        foundGroup.setState(State.DELETE);
         shareGroupRepository.delete(foundGroup);
+        //delete alla relative tables?
     }
 
     public ShareGroup saveGroupInDb(ShareGroup group) {
