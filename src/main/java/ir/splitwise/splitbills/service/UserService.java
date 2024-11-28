@@ -2,6 +2,7 @@ package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
+import ir.splitwise.splitbills.models.RegisterUserRequest;
 import ir.splitwise.splitbills.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,9 +38,5 @@ public class UserService {
         }
         log.info("not match user with ids :{} ", ids);//todo
         throw new UserNotFoundException();
-    }
-
-    public void saveUsers(List<AppUser> appUserList) {
-        userRepository.saveAll(appUserList);//todo batch?
     }
 }

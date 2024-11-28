@@ -1,11 +1,11 @@
 package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
-import ir.splitwise.splitbills.models.enumeration.Role;
 import ir.splitwise.splitbills.exceptions.DuplicateDataException;
 import ir.splitwise.splitbills.models.AuthResponse;
 import ir.splitwise.splitbills.models.LoginRequest;
 import ir.splitwise.splitbills.models.RegisterUserRequest;
+import ir.splitwise.splitbills.models.enumeration.Role;
 import ir.splitwise.splitbills.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,16 +27,27 @@ public class AuthenticationService {
 
     public AuthResponse register(RegisterUserRequest request, HttpServletResponse response) throws DuplicateDataException {
 
-        var foundUser = userRepository.findByEmail(request.email());
-        if (foundUser.isPresent()) {
-            throw new DuplicateDataException("this email is already exist");
-        }
-        var appUser = buildAppUser(request);
+        var appUser = getUser(request);
+        appUser.setRole(Role.USER);
         userRepository.save(appUser);
         var token = jwtService.generateToken(appUser);//todo
         setCookie(response, token, System.currentTimeMillis() + 1000 * 60 * 24);//todo fix with jwt time
 
         return new AuthResponse(token);
+    }
+
+    public void registerAdmin(RegisterUserRequest request) throws DuplicateDataException {
+        AppUser appUser = getUser(request);
+        appUser.setRole(Role.ADMIN);
+        userRepository.save(appUser);
+    }
+
+    private AppUser getUser(RegisterUserRequest request) throws DuplicateDataException {
+        var foundUser = userRepository.findByEmail(request.email());
+        if (foundUser.isPresent()) {
+            throw new DuplicateDataException("this email is already exist");
+        }
+        return buildAppUser(request);
     }
 
     private AppUser buildAppUser(RegisterUserRequest request) {//todo model Mapper
@@ -45,9 +56,7 @@ public class AuthenticationService {
                 .lastName(request.lastname())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
-                .role(Role.USER)
                 .build();
-
     }
 
     public void login(LoginRequest request, HttpServletResponse response) {

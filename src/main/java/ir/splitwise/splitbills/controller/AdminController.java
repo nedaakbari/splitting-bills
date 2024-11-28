@@ -1,11 +1,11 @@
 package ir.splitwise.splitbills.controller;
 
 
-import ir.splitwise.splitbills.service.UserService;
+import ir.splitwise.splitbills.exceptions.DuplicateDataException;
+import ir.splitwise.splitbills.models.RegisterUserRequest;
+import ir.splitwise.splitbills.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,12 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 public class AdminController {
-    private UserService userService;
-
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/add")
 //    @PreAuthorize("hasRole('ADMIN')")
-    public void addAmin(){
-        //register an admin
+    public void addAmin(RegisterUserRequest request) throws DuplicateDataException {
+        authenticationService.registerAdmin(request);
     }
 }
