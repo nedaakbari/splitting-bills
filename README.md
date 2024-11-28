@@ -1,11 +1,5 @@
-# splitting-bills
-a web app to splitting bills among friends
-
-
-
-# Cost Sharing Application
-
-A Java-based application for splitting costs among group members, built with Spring Boot, PostgreSQL, and Docker.
+# Splitting-bills
+A Java-based application for splitting among group members
 
 ---
 
