@@ -1,20 +1,30 @@
-HELP.md
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Package Files #
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
 target/
-!.mvn/wrapper/maven-wrapper.jar
+.mvn
 !**/src/main/**/target/
 !**/src/test/**/target/
-### Maven ###
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-# https://github.com/takari/maven-wrapper#usage-without-binary-jar
-.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 
 ### IntelliJ IDEA ###
 .idea
@@ -34,45 +44,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-
-# Sensitive or high-churn files
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-.idea/**/dbnavigator.xml
-# Mongo Explorer plugin
-.idea/**/mongoSettings.xml
-# IntelliJ
-out/
-# mpeltonen/sbt-idea plugin
-.idea_modules/
-
-# SonarLint plugin
-.idea/sonarlint/
-
-.idea/$CACHE_FILE$
-
-
-
-*.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Package Files #
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# Ignore logs folder
-/logs
