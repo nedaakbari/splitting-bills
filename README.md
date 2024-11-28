@@ -33,6 +33,13 @@ A Java-based application for splitting among group members
 
 ### 1. Clone the repository
 ```bash
+
 git clone https://github.com/nedaakbari/splitting-bills.git
 cd splitting-bills
+
+
+Update application.properties with your PostgreSQL credentials:
+spring.datasource.username=
+spring.datasource.password=
+
 
