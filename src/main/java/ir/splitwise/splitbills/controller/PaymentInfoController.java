@@ -11,6 +11,7 @@ import ir.splitwise.splitbills.models.PaymentRequest;
 import ir.splitwise.splitbills.models.PaymentResponse;
 import ir.splitwise.splitbills.service.PaymentInfoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,10 +30,18 @@ public class PaymentInfoController {
 
     @Operation(description = "this api used for calculating expense and show who should pay to another one in group")
     @PostMapping("/get-all-for-group")
-    public List<PaymentResponse> getAllPaymentInfo(@RequestBody BaseRequest request)//PaymentResponse
+    public ResponseEntity<List<PaymentResponse>> getAllPaymentInfo(@RequestBody BaseRequest request)//PaymentResponse
+            throws ContentNotFoundException, UserNotFoundException {
+        return ResponseEntity.ok()
+                .body(paymentInfoService.getPayInfoOfGroup(request.id()));
+    }
+
+    @Operation(description = "this api used for calculating expense and show who should pay to another one in group in excel format")
+    @PostMapping("/get-all-for-group-excel")
+    public ResponseEntity<byte[]> getExcelAllPaymentInfo(@RequestBody BaseRequest request)//PaymentResponse
             throws ContentNotFoundException, UserNotFoundException {
 
-        return paymentInfoService.getPayInfoOfGroup(request.id());
+        return ResponseEntity.ok().body(paymentInfoService.executeExcel(request.id()));
     }
 
     @Operation(description = "this api used for calculating expense of a user")

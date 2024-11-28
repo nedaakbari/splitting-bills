@@ -17,6 +17,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +32,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PaymentInfoService {
+public class PaymentInfoService implements DataResult {
     private final ExpenseService expenseService;
     private final BillService billService;
     private final PaymentInfoRepository paymentInfoRepository;
@@ -59,20 +63,20 @@ public class PaymentInfoService {
     @Transactional(readOnly = true)
     List<PaymentInfo> processForPayment(List<ExpenseDto> expenses, ShareGroup shareGroup, Bill bill) {
         List<ExpenseDto> payer = new ArrayList<>();
-        List<ExpenseDto> recivers = new ArrayList<>();
+        List<ExpenseDto> creditorList = new ArrayList<>();
         for (ExpenseDto expens : expenses) {
             if (expens.getShareAmount() < 0) {
                 payer.add(expens);
             } else {
-                recivers.add(expens);
+                creditorList.add(expens);
             }
         }
 
         payer.sort(Comparator.comparingDouble(ExpenseDto::getShareAmount));
-        recivers.sort(Comparator.comparingDouble(ExpenseDto::getShareAmount));
-        recivers.reversed();
+        creditorList.sort(Comparator.comparingDouble(ExpenseDto::getShareAmount));
+        creditorList.reversed();
 
-        return processForPayment(shareGroup, bill, payer, recivers);
+        return processForPayment(shareGroup, bill, payer, creditorList);
     }
 
     private static List<PaymentInfo> processForPayment(ShareGroup shareGroup, Bill bill,
@@ -116,12 +120,6 @@ public class PaymentInfoService {
         return paymentInfo;
     }
 
-    public List<PaymentResponse> getPayInfoOfUser(PaymentRequest request, AppUser requester) {
-        var allByIdAndShareGroup = request.dept() ?
-                paymentInfoRepository.findAllUserRecivePaymentInfo(requester.getId(), request.groupId())
-                : paymentInfoRepository.findAllUserDeptPaymentInfo(requester.getId(), request.groupId());
-        return getPaymentResponses(allByIdAndShareGroup);
-    }
 
     private static List<PaymentResponse> getPaymentResponses(List<PaymentInfo> payInfoOfGroup) {
         return payInfoOfGroup.stream().map(paymentInfo ->//todo fix the load of all info
@@ -138,6 +136,42 @@ public class PaymentInfoService {
                 .toList();
     }
 
+
+    private <T> T execute(long groupId, ExecutorFunction<T> executor) {
+        return executor.apply();
+    }
+
+    @Override
+    public DataJsonResult executeJson() {
+        return null;
+    }
+
+    public List<PaymentResponse> getPayInfoOfUser(PaymentRequest request, AppUser requester) {
+        var allByIdAndShareGroup = request.dept() ?
+                paymentInfoRepository.findAllUserRecivePaymentInfo(requester.getId(), request.groupId())
+                : paymentInfoRepository.findAllUserDeptPaymentInfo(requester.getId(), request.groupId());
+        return getPaymentResponses(allByIdAndShareGroup);
+    }
+
+    @Override
+    public DataExcelResult executeExcel(PaymentRequest request, AppUser requester) {
+        var allByIdAndShareGroup = request.dept() ?
+                paymentInfoRepository.findAllUserRecivePaymentInfo(requester.getId(), request.groupId())
+                : paymentInfoRepository.findAllUserDeptPaymentInfo(requester.getId(), request.groupId());
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet paymentData = workbook.createSheet("paymentData");
+        Row headerRow = paymentData.createRow(0);
+        headerRow.createCell(0).setCellValue("Column 1");
+        headerRow.createCell(1).setCellValue("Column 2");
+    }
+
+
+    @FunctionalInterface
+    private interface ExecutorFunction<R> {
+        R apply(long groupId,)//?
+    }
+
     @Getter
     @AllArgsConstructor
     private static class ExpenseDto {
@@ -145,5 +179,14 @@ public class PaymentInfoService {
         private Bill bill;
         @Setter
         private double shareAmount;
+    }
+
+
+    private DataJsonResult executeJson(long groupId) {
+        return execute(groupId, DataResult::executeJson);
+    }
+
+    public DataExcelResult executeExcel(long groupId) {
+        return execute(groupId, DataResult::executeExcel);
     }
 }
