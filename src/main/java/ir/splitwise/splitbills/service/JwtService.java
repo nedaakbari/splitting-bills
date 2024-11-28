@@ -19,10 +19,9 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails) {
 
-        Date iat = new Date(System.currentTimeMillis());
         return Jwts.builder().setClaims(new HashMap<>())
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(iat)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))//todo getFrom application.properties;
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY)), SignatureAlgorithm.HS256)
                 .compact();
@@ -49,9 +48,9 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey()) // Use the decoded key
+                .setSigningKey(getSignInKey())
                 .build()
-                .parseClaimsJws(token) // Use parseClaimsJws instead of parseClaimsJwt
+                .parseClaimsJws(token)
                 .getBody();
     }
 

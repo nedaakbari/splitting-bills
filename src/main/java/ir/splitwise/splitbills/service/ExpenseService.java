@@ -19,7 +19,6 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final UserService userService;
 
-
     public List<Expense> addExpense(Bill bill, List<ItemRequest> itemRequestList) throws UserNotFoundException {
         expenseRepository.deleteAllByBillId(bill.getId());
         List<Expense> expenseList = new ArrayList<>();
@@ -48,7 +47,6 @@ public class ExpenseService {
         List<AppUser> allUserById = userService.findAllUserById(userIdList);
         return allUserById.stream().map(user -> new Expense(user, bill, -sharedCount)).toList();
     }
-
 
     private Expense getPairExpense(Bill bill, UserItem userItem,
                                    double totalCost, int itemTotalCount) throws UserNotFoundException {

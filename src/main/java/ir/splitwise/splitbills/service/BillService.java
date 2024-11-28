@@ -43,10 +43,6 @@ public class BillService {
         var groupCost = foundGroup.getTotalCost();
         foundGroup.setTotalCost(totalCost + groupCost);
         shareGroupService.saveGroupInDb(foundGroup);
-
-//        List<Expense> expenses = addExpense(bill, request.items());
-//        List<PaymentInfo> pay = processPayInfo(expenses, foundGroup, bill);
-//        paymentInfoRepository.saveAll(pay);
         return new BaseRequestResponse(savedBill.getId());
     }
 
@@ -63,12 +59,6 @@ public class BillService {
         var totalCost = getBillTotalCost(request.items());
         shareGroup.setTotalCost(totalCost);
         shareGroupService.saveGroupInDb(shareGroup);
-
-//        List<Expense> expenses = expenseRepository.finaAllByBillId(foundBill.getId());
-//        deleteAllTheseExpense and Payment info
-//        calculating the begin
-//        List<PaymentInfo> pay = processPayInfo(expenses, shareGroup, foundBill);
-//        paymentInfoRepository.saveAll(pay);
         //todo expense and payment info set
     }
 
@@ -87,7 +77,7 @@ public class BillService {
         foundBill.setPayer(payer);
         foundBill.setTitle(request.title());
         var items = gson.toJson(request.items());
-        foundBill.setItems(items);//todo
+        foundBill.setItems(items);
     }
 
     private Bill findBillFromDb(long id) throws ContentNotFoundException {
@@ -96,7 +86,7 @@ public class BillService {
 
     private Bill buildBill(AddBillRequest addBillRequest, ShareGroup shareGroup,
                            AppUser payer, AppUser creator) {
-        //todo user ModelMapper
+        //todo user ModelMapper or map struct
         var bill = new Bill();
         bill.setDescription(addBillRequest.description());
         bill.setTitle(addBillRequest.title());
