@@ -27,9 +27,6 @@ public class PaymentInfo {
     @ManyToOne
     private ShareGroup shareGroup;
 
-    @ManyToOne
-    private Bill bill;
-
     private PayWay payWay;
     private Date payDate;
     private boolean isPaid;
@@ -39,12 +36,12 @@ public class PaymentInfo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PaymentInfo that)) return false;
-        return Objects.equals(getPayer(), that.getPayer()) && Objects.equals(getReceiver(), that.getReceiver()) && Objects.equals(getShareGroup(), that.getShareGroup()) && Objects.equals(getBill(), that.getBill());
+        return Objects.equals(getPayer(), that.getPayer()) && Objects.equals(getReceiver(), that.getReceiver()) && Objects.equals(getShareGroup(), that.getShareGroup());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getPayer(), getReceiver(), getShareGroup(), getBill());
+        return Objects.hash(getPayer(), getReceiver(), getShareGroup());
     }
 //todo for transaction Info
 //    private PayWay payWay;

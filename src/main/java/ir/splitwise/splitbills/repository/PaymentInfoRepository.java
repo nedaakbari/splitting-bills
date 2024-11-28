@@ -16,6 +16,6 @@ public interface PaymentInfoRepository extends JpaRepository<PaymentInfo, Long> 
     List<PaymentInfo> findAllUserRecivePaymentInfo(long userId, long groupId);
 
     @Modifying
-    @Query("delete from PaymentInfo p where p.bill.id in :billId")
-    void deleteAllByBillIds(List<Long> billId);
+    @Query("delete from PaymentInfo p where p.shareGroup.id = :groupId")
+    void deleteAllByGroupId(long groupId);
 }

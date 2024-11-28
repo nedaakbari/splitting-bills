@@ -9,6 +9,7 @@ import ir.splitwise.splitbills.models.UserItem;
 import ir.splitwise.splitbills.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +20,8 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final UserService userService;
 
+    @Transactional
     public List<Expense> addExpense(Bill bill, List<ItemRequest> itemRequestList) throws UserNotFoundException {
-        expenseRepository.deleteAllByBillId(bill.getId());
         List<Expense> expenseList = new ArrayList<>();
         for (var itemRequest : itemRequestList) {
             var totalCost = itemRequest.getTotalCost();
@@ -58,5 +59,8 @@ public class ExpenseService {
         expense.setShareAmount(-(totalCost / itemTotalCount) * count);
         expense.setBill(bill);
         return expense;
+    }
+    void deleteAllByBillIds(List<Long> billIds){
+        expenseRepository.deleteAllByBillIs(billIds);
     }
 }

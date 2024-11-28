@@ -1,11 +1,10 @@
 package ir.splitwise.splitbills.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,4 +29,8 @@ public class Bill extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ShareGroup shareGroup;
+
+
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Expense> expenseList;//todo problem fetch eager dont know why
 }
