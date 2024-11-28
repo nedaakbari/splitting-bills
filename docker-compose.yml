@@ -2,29 +2,31 @@ version: '3.8'
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
+    image: splitting-bills
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/split
-      SPRING_DATASOURCE_USERNAME: 1373
-      SPRING_DATASOURCE_PASSWORD: postgres
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/split
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1373
     depends_on:
       - db
+    networks:
+      - app-network
 
   db:
-    image: postgres:15-alpine
-    container_name: postgres_container
+    image: postgres:latest
     environment:
-      POSTGRES_DB: split
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1373
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: split
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
-volumes:
-  postgres_data:
+networks:
+  app-network:
+    driver: bridge
