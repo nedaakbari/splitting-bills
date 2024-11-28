@@ -75,11 +75,6 @@ public class ShareGroupService {
                 .orElseThrow(() -> new ContentNotFoundException("group " + id + "not found"));
     }
 
-    public ShareGroup findGroupByUserAndGroupId(long groupId, long userId) throws ContentNotFoundException {
-        return shareGroupRepository.findGroupByUserAndGroupId(groupId, userId)
-                .orElseThrow(() -> new ContentNotFoundException("the user:" + userId + " have no group with id: " + groupId));
-    }
-
     public void deleteAGroup(long id) throws ContentNotFoundException {
         ShareGroup foundGroup = findGroupById(id);
         shareGroupRepository.delete(foundGroup);

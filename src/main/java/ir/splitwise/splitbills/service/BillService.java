@@ -46,7 +46,6 @@ public class BillService {
         return new BaseRequestResponse(savedBill.getId());
     }
 
-
     @Transactional(rollbackFor = Throwable.class)
     public void modifyBill(ModifyBillRequest request, AppUser modifyer) throws UserNotFoundException, ContentNotFoundException {
         var foundBill = findBillFromDb(request.id());

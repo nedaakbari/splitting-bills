@@ -15,27 +15,17 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
 
-    public List<?> getAllGroupOfUser() {
-        //todo
-        return null;
-    }
-
-    public List<?> getAllActiveGroupOfUser() {
-        //todo
-        return null;
-    }
-
     public AppUser findUserById(long id) throws UserNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("user " + id + "not found"));
     }
 
     public List<AppUser> findAllUserById(List<Long> ids) throws UserNotFoundException {
-        List<AppUser> foundUsers = userRepository.findAllById(ids);//todo what if one not match
+        List<AppUser> foundUsers = userRepository.findAllById(ids);
         if (!foundUsers.isEmpty() && foundUsers.size() == ids.size()) {
             return foundUsers;
         }
-        log.info("not match user with ids :{} ", ids);//todo
-        throw new UserNotFoundException();
+        log.info("not match user with ids :{} ", ids);
+        throw new UserNotFoundException("user not found");
     }
 }
