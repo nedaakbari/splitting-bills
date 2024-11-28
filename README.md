@@ -1,6 +1,8 @@
 # Splitting-bills
 A Java-based application for splitting among group members
 
+<img src="https://github.com/user-attachments/assets/78a4a34d-29d7-4cdf-8f37-ab57f2ad95e8" alt="Description" width="500">
+
 ---
 
 ## Features
