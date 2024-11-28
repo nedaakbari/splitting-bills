@@ -1,14 +1,12 @@
 package ir.splitwise.splitbills.service;
 
 import ir.splitwise.splitbills.entity.AppUser;
-import ir.splitwise.splitbills.entity.Bill;
 import ir.splitwise.splitbills.entity.ShareGroup;
 import ir.splitwise.splitbills.exceptions.ContentNotFoundException;
 import ir.splitwise.splitbills.exceptions.UserNotFoundException;
 import ir.splitwise.splitbills.models.*;
 import ir.splitwise.splitbills.models.enumeration.GroupMode;
 import ir.splitwise.splitbills.models.enumeration.State;
-import ir.splitwise.splitbills.repository.BillRepository;
 import ir.splitwise.splitbills.repository.ShareGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +22,6 @@ import java.util.Set;
 public class ShareGroupService {
     private final ShareGroupRepository shareGroupRepository;
     private final UserService userService;
-    private final BillRepository billRepository;
 
     @Transactional(rollbackFor = Throwable.class)
     public BaseRequestResponse addShareGroup(ShareGroupRequest shareGroupRequest, AppUser owner) throws UserNotFoundException {
@@ -73,13 +70,6 @@ public class ShareGroupService {
     @Transactional(rollbackFor = Throwable.class)
     public void deleteAGroup(long id) throws ContentNotFoundException {
         var foundGroup = findGroupById(id);
-
-        var allByGroupId = billRepository.findAllByGroupId(foundGroup.getId());//todo what is the best? its not true
-        List<Long> billId = new ArrayList<>();
-        if (!allByGroupId.isEmpty()) {
-            billId = allByGroupId.stream().map(Bill::getId).toList();
-        }
-        billRepository.deleteAllById(billId);
         shareGroupRepository.delete(foundGroup);
     }
 

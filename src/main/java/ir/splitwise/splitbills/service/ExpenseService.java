@@ -60,7 +60,8 @@ public class ExpenseService {
         expense.setBill(bill);
         return expense;
     }
-    void deleteAllByBillIds(List<Long> billIds){
+
+    void deleteAllByBillIds(List<Long> billIds) {
         expenseRepository.deleteAllByBillIs(billIds);
     }
 }
