@@ -33,7 +33,7 @@ public class AuthenticationService {
         }
         var appUser = buildAppUser(request);
         userRepository.save(appUser);
-        var token = jwtService.generateToken(appUser);//todo
+        var token = jwtService.generateAccessToken(appUser);//todo
         setCookie(response, token, System.currentTimeMillis() + 1000 * 60 * 24);//todo fix with jwt time
 
         return new AuthResponse(token);
@@ -53,7 +53,7 @@ public class AuthenticationService {
     public void login(LoginRequest request, HttpServletResponse response) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         var user = userRepository.findByEmail(request.email()).orElseThrow();
-        var token = jwtService.generateToken(user);
+        var token = jwtService.generateAccessToken(user);
         setCookie(response, token, System.currentTimeMillis() + 1000 * 60 * 24);
         //todo what happened if i have some excption here?
     }//todo fix not generate more than n request in seconds and when get new expitre other token
